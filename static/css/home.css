@@ -1,0 +1,73 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background: #fff;
+}
+.fondo{
+    margin: 0 ;
+    width: 100%;
+    height: 30vh;
+    background: #eee;
+}
+.user{
+    padding: 6vh 0 0 0;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    color: #2f3476;
+}
+.user i{
+    background: #fff159;
+    padding: 3vh;
+    color: #2f3476;
+    margin: auto;
+    font-size: 4vh;
+    border-radius: 50%;
+}
+.user h1{
+    color: #2f314e;
+    margin: auto;
+    font-size: 5vh;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+.user h3{
+    color: #2f314e;
+    margin: auto;
+    font-size: 3vh;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+} .container_form{
+    width: 50%;
+    margin:30px auto auto auto;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: space-between;
+}
+ .container_form a{
+    width: 160px;
+    display: flex;
+    flex-direction: column;
+    background: #ddd;
+    border-radius: 50%;
+    text-decoration: none;
+    text-align: center;
+    padding: 25px 0;
+    font-size: 12px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin:30px  auto;
+    color: #2f3476;
+    font-weight: 600;
+    justify-content: center;
+    text-align: center;
+}
+.container_form i{
+    margin: auto;
+    font-size: 40px;
+    color: #fff159;
+    text-shadow: -1px 0 0 #fff, 1px 1px 0 #2f3476, 0 1px 0 #2f3476, 1px 0 0 #2f3476, 0 -1px 0 #fff,-1px -1px 0 #fff, 0 -1px 0 #2f3476;  
+}
+

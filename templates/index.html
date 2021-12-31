@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//db.onlinewebfonts.com/c/69f1400361a215519d385199118a34aa?family=Harabara" rel="stylesheet" type="text/css"/>
+    <link rel="icon" type="image" sizes="40x6" href="https://http2.mlstatic.com/ui/navigation/5.18.1/mercadolibre/favicon.ico"> 
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <title>Inicio</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages%}
+    {%for message in messages%}<script>
+        alert('{{message}}')
+    </script>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+    <section class="titulo"><img src="/static/img/Logo.png" alt=""><div class="titulo"><p>Withdrawal System</p></div></section>
+    <div class="container"> 
+        <form action="/validar_usuario" method="POST">
+            <p>¡Hola! Para seguir, ingresa tu  usuario</p>
+            <label for="user"> Ingresa tu Usuario <i class="fas fa-user-tie"></i> </label>
+            <input autocomplete="off" type="text" name="user" id="user"  class="user_inicio" required>
+            <input type="submit"  class="btn" value="Continuar">
+        </form>
+    </div>
+        <a href="https://www.linkedin.com/in/carlos-yovani-munoz-hernandez/" target="_back" class="linkedin"><i class="fas fa-code"></i> Powered By @ <b>Yohver</b> </a> 
+    
+</body>
+</html>
+

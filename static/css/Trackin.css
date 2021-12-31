@@ -1,0 +1,69 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background: #eee;
+}
+.Tituloprealert{
+    text-align: center;
+    margin: 3vh auto ;
+    font-size: 6vh;
+    color: #2f3476;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-shadow:1px 1px 0 #fff;
+}
+div.Cross-Invalido,
+div.Full-Invalido,
+div.Service-Invalido,
+div.Cross-valido,
+div.Full-valido,
+div.Service-valido{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    width: 95%;
+    margin: 0 auto;
+    padding:5px;
+    color: #2f3476;
+    border-radius: 5px;
+    background: #fff;
+    border:1px solid #000;
+}
+
+div.Cross-valido i,
+div.Full-valido i,
+div.Service-valido i{
+    width: 100%;
+    padding: 10px;
+    background: #3483fa;
+    border-radius: 10px;
+    font-size: 4vh;
+    color: #fff;
+}
+
+div.Cross-Invalido i,
+div.Full-Invalido i,
+div.Service-Invalido i{
+    width: 100%;
+    padding: 10px;
+    background: #eee;
+    font-size: 4vh;
+    color: rgb(83, 83, 83);
+    border-radius: 10px;
+}
+.panel{
+    text-align: center;
+    background: #fff;
+}
+table{
+    width: 100%;
+    justify-content: space-around;
+    background: #eee;
+}
+Td{
+    margin: 10px 5px;
+    border-bottom:1px solid #2f3476 ;
+    text-align: center;
+}
+tr{
+    margin: 2vh auto;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image" href="{{url_for('static', filename='img/logo.icon')}}"> 
+    <link rel="stylesheet" href="{{url_for('static', filename='css/formularios.css')}}">
+    <link href="//db.onlinewebfonts.com/c/69f1400361a215519d385199118a34aa?family=Harabara" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/nav.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <title>Formulario</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages%}
+    {%for message in messages%}
+    <script>
+        alert('{{message}}')
+    </script>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+    <nav class="nav-main">
+        <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.10.0/mercadolibre/favicon.svg" alt="" class="logo">
+        <h1 class="text_logo"><b>mercado libre</b></h1>
+     
+    <div class="user_info">
+        <p>Estas Viendo:{{Datos['SiteName']}} | {{Datos['UserName']}}</p>  
+    </div>
+    
+    </nav>
+        <div class="fondo"></div>
+        <section>
+            <form action="/finalizar" method="POST" >
+                <h2>Prealert de ordenes</h2>
+                    <label for="Marchamo">Marchamo: </label>
+                    <input type="text" name="Marchamo" placeholder="# Marchamo" required> 
+                <input type="submit" class="btn" name="enviar" value="Cerrar" >
+            </form>
+            
+        </section>
+        <script src="{{url_for('static', filename='js/interfas.js')}}">
+    </script>
+</body>
+</html>

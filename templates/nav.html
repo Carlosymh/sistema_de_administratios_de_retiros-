@@ -1,0 +1,48 @@
+{% block cabezera %}
+{% endblock %}
+<nav class="nav-main">
+    <!--BTN-->
+    <input type="checkbox" class="nav-main__btn-collapse" id="nav-main__checkbox">
+    <label for="nav-main__checkbox" class="nav-main__btn-collapse-icon">
+        <span class="icon-nav"></span>
+        <span class="icon-nav"></span>
+        <span class="icon-nav"></span>
+    </label>
+    <!--Logo-->
+    <a href="/home" class="enlace">
+        <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.10.0/mercadolibre/favicon.svg" alt="" class="logo">
+        <h1 class="text_logo"><b>Withdrawal System</b></h1>
+        
+    </a>
+ 
+    <!--MENU-->
+    <div class="nav-main__menu">
+        <div class="btn_nav"></div>
+        <a href='/home' class='link_menu'><i class="fas fa-mobile">  Procesos</i> </a>
+        <button class="accordion"><i class="fas fa-table">  Reportes</i></button>
+        <div class="panel">
+                    <a href='/Reporte_Retiros/0' class='link_menu'>  Retiros</a>
+                    <a href='/Reporte_donacion/0' class='link_menu'>  Donacion</a>
+                    <a href='/Reporte_Ingram/0' class='link_menu'>  Ingram</a>
+        </div>
+        <button class="accordion"><i class="fas fa-tasks"> Tareas </i></button>
+        <div class="panel">
+                    <a href='/Solicitudes_Retiros/0' class='link_menu'> Solicitudes Retiros</a>
+                    <a href='/Solicitudes_donacion/0' class='link_menu'> Solicitudes  Donacion</a>
+                    <a href='/Solicitudes_Ingram/0' class='link_menu'> Solicitudes Ingram</a>
+        </div>
+            {% if  Datos['Rango'] == 'Administrador'%}
+                <a href='/registro' class='link_menu'><i class="fas fa-user-plus">  Registro de Usuarios</i></a>
+            {%endif%}
+            
+    </div>
+<div class="user_info">
+    <p>Estas Viendo:{{Datos['SiteName']}}</p>
+    <a href="/logout"><i class="fas fa-power-off"></i>  {{Datos['UserName']}}</a>
+</div>
+
+</nav>
+
+
+{% block body %}
+{% endblock %}

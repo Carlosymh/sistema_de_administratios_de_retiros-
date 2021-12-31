@@ -1,0 +1,137 @@
+{% extends 'nav.html'%}
+{% block cabezera%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image" href="{{url_for('static', filename='img/logo.icon')}}"> 
+    <link rel="stylesheet" href="{{url_for('static', filename='css/reportes.css')}}">
+    <link href="//db.onlinewebfonts.com/c/69f1400361a215519d385199118a34aa?family=Harabara" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/nav.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <title>Reporte Realert</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages%}
+    {%for message in messages%}
+    <script>
+        alert('{{message}}')
+    </script>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+    {% endblock %}
+    {% block body%}
+    <div class="filtros">
+        <form action="/Reporte_Retiros/0" method="post" class="form_filtros">
+            <select name="filtro">
+                <option value="id_retiro ">ID</option>
+                <option value="nuemro_de_ola">Numero de Ola</option>
+                <option value="meli">Meli</option>
+                <option value="ubicacion">Ubicacion</option>
+                <option value="responsable">Responsable</option>
+            </select>
+            <input autocomplete="off" type="text" name="valor">
+            <label for="datefilter">Fecha: </label>
+            <input autocomplete="off" type="text" name="datefilter" value="" />
+            </label>
+            <input type="submit" value="Buscar">
+        </form>
+        <a href="/csvretiros" target="_blank" class="download_csv"><i class="fas fa-file-download"></i>  Descargar</a>
+    </div>
+        <div class="fondo">
+        <section>
+            <table>
+                <thead >
+                    <tr class="head">
+                        <th> ID </th>
+                        <th> Ola </th>
+                        <th> Meli</th>
+                        <th> Cantidad </th>
+                        <th> Ubicacion </th>
+                        <th> Responsable </th>
+                        <th> Fecha y Hora </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {%for Info in  Infos%}
+                    <tr>
+                        <td>{{Info.0}}</td>
+                        <td>{{Info.1}}</td>
+                        <td>{{Info.2}}</td>
+                        <td>{{Info.3}}</td>
+                        <td>{{Info.4}}</td>
+                        <td>{{Info.5}}</td>
+                        <td>{{Info.7}}</td>
+                    </tr>
+                    {%endfor%}
+                    <tr class="Pag">
+                        <td colspan="13" class="Pag">
+                            {%set row= Datos['rowi_recibo'] |int%}
+                            {%if row==0%}
+                            <a href="/Reporte_Retiros/0" class="after">
+                                <i class="fas fa-angle-double-left">
+                                </i>
+                            </a>
+                            {%else%}
+                            {%set rowMenos=row-50 | int%}
+                            <a href="/Reporte_Retiros/{{rowMenos}}" class="after">
+                                <i class="fas fa-angle-double-left">
+                                </i>
+                            </a>
+                            {%endif%}
+                            {%set rowMas=row+50 | int%}
+                            <a href="/Reporte_Retiros/0" class="in"> 1 </a>
+                            <a href="/Reporte_Retiros/50" class="in"> 2 </a>
+                            <a href="/Reporte_Retiros/100" class="in"> 3 </a>
+                            <a href="/Reporte_Retiros/150" class="in"> 4 </a>
+                            <a href="/Reporte_Retiros/200" class="in"> 5 </a>
+                            <a href="/Reporte_Retiros/250" class="in"> 6 </a>
+                            <a href="/Reporte_Retiros/300" class="in"> 7 </a>
+                            <a href="/Reporte_Retiros/350" class="in"> 8 </a>
+                            <a href="/Reporte_Retiros/400" class="in"> 9 </a>
+                            <a href="/Reporte_Retiros/450" class="in"> 10 </a>
+                            <a href="/Reporte_Retiros/{{rowMas}}" class="before">
+                                <i class="fas fa-angle-double-right">
+                                </i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script src="{{url_for('static', filename='js/interfas.js')}}">
+    </script>
+    <script type="text/javascript">
+        $(function() {
+          $('input[name="datefilter"]').daterangepicker({
+              autoUpdateInput: false,
+              locale: {
+                  cancelLabel: 'Clear'
+              }
+          });
+        
+          $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
+              $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+          });
+        
+          $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+              $(this).val('');
+          });
+        
+        });
+        </script>
+</body>
+</html>
+{% endblock %}

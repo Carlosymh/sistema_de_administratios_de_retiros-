@@ -1,0 +1,202 @@
+body{
+    background-color: #eee;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+
+    
+}
+section{
+    background: #fff159 ;
+    margin: 0;
+    color: #2f3476;
+    height: 350px;
+    display: flex;
+}
+section img{
+    width: 100px;
+    height: 50px;
+    margin-top: 30PX;
+    margin-left: 10px;
+}
+section .titulo p{
+    width: 50%;
+    font-size: 25PX;
+    margin-top: 25PX;
+    margin-left: 5px;
+    font-family: 'Harabara',Verdana;
+}
+.container-contraseña{
+    position: relative;
+    margin: auto;
+    margin-top: -150px;
+    background: #fff;
+    width: 400px;
+    height: 320px;
+    display:flexbox;
+    box-shadow: 0 0 0.2vh  #000;
+    border-radius: 5px;
+    text-align: center;
+}
+.container{
+    position: relative;
+    margin: auto;
+    margin-top: -150px;
+    background: #fff;
+    width: 400px;
+    height: 300px;
+    display:flexbox;
+    box-shadow: 0 0 2px  #000;
+    border-radius: 5px;
+    text-align: center;
+}
+
+form{
+    width: 80%;
+    display: grid;
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+
+}
+
+form p{
+    font-family: Verdana, Tahoma, sans-serif;
+    font-size: 25px;
+    color: #000;
+
+}
+
+form label{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 15px;
+    color: rgb(95, 92, 92);
+}
+
+input{
+    margin-bottom: 20px;
+    margin-top: 10px;
+    font-size: 20px;
+}
+
+input.user_inicio{
+    margin-bottom: 20px;
+    margin-top: 10px;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    border:none;
+    outline: none;
+    box-shadow: 0 0 2px #000;
+}
+input.user_inicio:focus{
+    box-shadow: 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa;
+}
+.btn{
+    font-family: Verdana, Tahoma, sans-serif;
+    width: 100%;
+    font-size: 20px;
+    padding:10px 5px;
+    background: #3483fa;
+    color: #fff;
+    font-weight: bolder;
+    border:none;
+    border-radius: 5px;
+    margin: auto;
+    margin-bottom: 20px;
+    transition: 0.5s;
+}
+
+.btn:hover{
+    font-family: Verdana, Tahoma, sans-serif;
+    width: 100%;
+    font-size: 20px;
+    font-weight: bolder;
+    background: #256ad3;
+    color: #fff;
+    transition: 0.5s;
+}
+
+a.linkedin{
+    display: block;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-decoration: none;
+    color: rgb(177, 175, 175);
+    font-size: 15px;
+    margin: 40px auto auto auto;
+    transition: 0.5s;
+}
+a.linkedin:hover{
+    color: rgb(82, 100, 129);
+    transition: 0.5s;
+}
+.user_content{
+    display: flex;
+    width: 95%;
+    height: 30px;
+    margin: auto auto 15px auto  ;
+    box-shadow: 0 0 2px #000;
+    border-radius: 15px;
+    justify-content: space-between;
+}
+.user_content p{
+    margin: auto auto auto 10px;
+    font-size: 20px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.user_content i{
+    background: #eee;
+    color: #000;
+    margin:auto 0 auto 3px;
+    font-size: 15px;
+    padding: 7px;
+    border-radius: 50%;
+}
+
+.user_content  a{
+    margin:auto 3px auto auto;
+    color: #000;
+    text-decoration: none;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 15px;
+    padding:2px  5px;
+    border-radius: 50%;
+}
+.user_content  a:hover{
+    background: #eee;
+}
+/* @media (max-width: 1800px ){
+    section img{
+        width: 120px;
+        height: 80px;
+        margin-top: 3rem;
+        right: 1vh;
+    }
+    section h1{
+        text-align: left;
+        width: 70%;
+        font-size: 60px;
+        margin-top: 8vh;
+        margin-left: 1vh;
+        font-family: 'Harabara',Verdana;
+    }
+    }
+@media (max-width: 505px ){
+section img{
+    width: 120px;
+    height: 80px;
+    margin-top: 3rem;
+    margin-left: 2vh;
+    right: 1vh;
+}
+section .titulo p{
+    text-align: left;
+    width: 90%;
+    font-size: 4vh;
+    margin-top: 8vh;
+    margin-left: 1vh;
+    font-family: 'Harabara',Verdana;
+}
+} */

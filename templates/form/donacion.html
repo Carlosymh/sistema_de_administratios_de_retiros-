@@ -1,0 +1,175 @@
+{% extends 'nav.html'%}
+{% block cabezera%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image" href="{{url_for('static', filename='img/logo.icon')}}"> 
+    <link rel="stylesheet" href="{{url_for('static', filename='css/formularios.css')}}">
+    <link href="//db.onlinewebfonts.com/c/69f1400361a215519d385199118a34aa?family=Harabara" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/nav.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <title>No Procesable</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages%}
+    {%for message in messages%}
+    <script>
+        alert('{{message}}')
+    </script>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+    {% endblock %}
+    {% block body%}
+        <div class="fondo"></div>
+        <section>
+            <form action="/registro_ordenes" method="POST" >
+                <h2>Ordenes no procesables</h2>
+                <label for="Paquetera">Carrier que entrega</label>
+                <select name="Paquetera">
+                    <option value="99 Minutos">99 Minutos</option>
+                    <option value="DHL">DHL</option>
+                    <option value="Estafeta">Estafeta</option>
+                    <option value="FedEx">FedEx</option>
+                    <option value="Mercado Envíos">Mercado Envíos</option>
+                    <option value="Paquete Express">Paquete Express</option>
+                </select>
+                <label for="orden">Orden de compra</label>
+                <input type="text" name="orden" placeholder="Ingresa el numero de orden">
+                <label for="Pallet">Pallet PS</label>
+                <input type="text" name="Pallet" placeholder="Ingresa el numero de pallet PS">  
+                <label for="Tipo">Tipo de orden</label>
+                <select name="Tipo">
+                    <option value="Retorno">Retorno</option>
+                    <option value="Devolución">Devolución</option>
+                </select>
+                <label for="Estatus">Estatus</label>
+                <select name="Estatus">
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Document">Document</option>
+                    <option value="Null">Null</option>
+                    <option value="Orden con doble BPP">Orden con doble BPP</option>
+                    <option value="Paquete vacio al arribo">Paquete vacio al arribo</option>
+                </select>
+                <label for="Service_Center">Service Center</label>
+                <select name="Service_Center">
+                    <option value="SAG1">SAG1</option>
+                    <option value="STJ1">STJ1</option>
+                    <option value="SLP1">SLP1</option>
+                    <option value="STG1">STG1</option>
+                    <option value="SCJ1">SCJ1</option>
+                    <option value="SCH1">SCH1</option>
+                    <option value="SMX2">SMX2</option>
+                    <option value="SMX1">SMX1</option>
+                    <option value="SMX3">SMX3</option>
+                    <option value="SMX5">SMX5</option>
+                    <option value="SMX4">SMX4</option>
+                    <option value="SMX6">SMX6</option>
+                    <option value="STR1">STR1</option>
+                    <option value="SCQ1">SCQ1</option>
+                    <option value="SZL1">SZL1</option>
+                    <option value="SDG1">SDG1</option>
+                    <option value="SHP1">SHP1</option>
+                    <option value="SLE1">SLE1</option>
+                    <option value="SGR1">SGR1</option>
+                    <option value="SGD1">SGD1</option>
+                    <option value="STL1">STL1</option>
+                    <option value="SML1">SML1</option>
+                    <option value="SCV1">SCV1</option>
+                    <option value="SPV1">SPV1</option>
+                    <option value="STN1">STN1</option>
+                    <option value="SOX1">SOX1</option>
+                    <option value="SPB1">SPB1</option>
+                    <option value="SQR1">SQR1</option>
+                    <option value="SCN1">SCN1</option>
+                    <option value="SSL1">SSL1</option>
+                    <option value="SCU1">SCU1</option>
+                    <option value="SMZ1">SMZ1</option>
+                    <option value="SMO1">SMO1</option>
+                    <option value="SHM1">SHM1</option>
+                    <option value="SVH1">SVH1</option>
+                    <option value="SVR1">SVR1</option>
+                    <option value="SPZ1">SPZ1</option>
+                    <option value="SMD1">SMD1</option>
+                    <option value="SZC1">SZC1</option>
+                    <option value="SLP1_A">SLP1_A</option>
+                    <option value="SMZ1_A">SMZ1_A</option>
+                    <option value="SCN1_A">SCN1_A</option>
+                    <option value="SMX3_S">SMX3_S</option>
+                    <option value="STJ1_A">STJ1_A</option>
+                    <option value="SCU1_A">SCU1_A</option>
+                    <option value="SMO1_A">SMO1_A</option>
+                    <option value="SHM1_A">SHM1_A</option>
+                    <option value="SCJ1_A">SCJ1_A</option>
+                    <option value="SMD1_A">SMD1_A</option>
+                    <option value="SMX1_S">SMX1_S</option>
+                    <option value="SCH1_A">SCH1_A</option>
+                    <option value="SMX4_S">SMX4_S</option>
+                    <option value="SMX5_S">SMX5_S</option>
+                    <option value="SMX2_S">SMX2_S</option>
+                    <option value="SMX6_S">SMX6_S</option>
+                    <option value="slw1">slw1</option>
+                    <option value="smt1">smt1</option>
+                    <option value="srx1">srx1</option>
+                    <option value="sma1">sma1</option>
+                    <option value="sta1">sta1</option>
+                    <option value="snl1">snl1</option>
+                    <option value="99MLM">99MLM</option>
+                    <option value="DHLSU2">DHLSU2</option>
+                    <option value="DHLJC1">DHLJC1</option>
+                    <option value="ESTMLM">ESTMLM</option>
+                    <option value="FDXXS2">FDXXS2</option>
+                    <option value="FDXSO1">FDXSO1</option>
+                    <option value="PQXMLM">PQXMLM</option>
+                    <option value="SG2">SG2</option>
+                    <option value="SJA1">SJA1</option>
+                    <option value="SCT1">SCT1</option>
+                    <option value="SMI1">SMI1</option>
+                    <option value="SBJ1">SBJ1</option>
+                    <option value="SVM1">SVM1</option>
+                    <option value="SMT2">SMT2</option>
+                    <option value="SMX7">SMX7</option>
+                    <option value="SMX7_S">SMX7_S</option>
+                    <option value="SDC1">SDC1</option>
+                    <option value="SCP1">SCP1</option>
+                    <option value="SCP1_A">SCP1_A</option>
+                    <option value="STP1">STP1</option>
+                    <option value="STR1_A">STR1_A</option>
+                    <option value="SPD1">SPD1</option>
+                    <option value="SXL1">SXL1</option>
+                    <option value="SCE1">SCE1</option>
+                    <option value="SJD1">SJD1</option>
+                    <option value="SCY1">SCY1</option>
+                    <option value="SLZ1">SLZ1</option>
+                    <option value="SGD1_S">SGD1_S</option>
+                    <option value="SGD2_S">SGD2_S</option>
+                    <option value="SMT1_S">SMT1_S</option>
+                    <option value="SMT2_S">SMT2_S</option>
+                    <option value="FedEx">FedEx</option>
+                    <option value="DHL">DHL</option>
+                    <option value="Estafeta">Estafeta</option>
+                    <option value="Paquete Express">Paquete Express</option>
+                    <option value="sgd2">sgd2</option>
+                    <option value="99 Minutos">99 Minutos</option>
+                </select>
+                <label for="ticket">Numero de ticket</label>
+                <input type="text" name="ticket" placeholder="Ingresa el # de ticket" required/>
+                <label for="fechatiket">Fecha del levantamiento de ticket</label>
+                <input type="date" name="fechatiket" placeholder="Ingresa la fecha del ticket"/>
+                <label for="Comentario">Comentario</label>
+                <input type="text" name="Comentario" placeholder="Comentario" required/>
+                <input type="submit" class="btn" name="enviar" value="enviar" >
+            </form>
+        </section>
+        <script src="{{url_for('static', filename='js/interfas.js')}}">
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,102 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background: #fff;
+}
+.fondo{
+    width: 100%;
+    height: 50vh;
+    background: #eee;
+
+}
+section{
+    width:60vh;
+    margin: -35vh auto;
+    background:#fff;
+    color: #2f3476;
+    text-align:center;
+    align-items:center;
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    border-radius:20px;
+    border:2px solid #a5a6a8;
+}
+
+section form {
+    width: 55vh;
+    margin: 2vh  auto;
+    background: rgba(241, 239, 239, 0.795);
+    padding:5px;
+    border-radius:20px;
+}
+section form h2{
+    font-size: 3vh;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 2vh;
+}
+section form label,
+section form select,
+section form input{
+    margin: 0.5vh auto;
+    width: 70%;
+    font-size: 2vh;
+}
+a.btn{
+    width: 80%;
+    margin-top: 3px;
+    background:#256ad3; 
+    color:#fff;
+    border-radius:10px; 
+    padding: 2px 3px; 
+    font-size:20px;
+    border: 1px solid #2f3476;
+    text-decoration: none;
+    font-weight: bolder;
+    transition: 1s;
+
+}
+section form input.btn {
+    background:#256ad3; 
+    color:#fff;
+    border-radius:10px; 
+    padding: 5px 20px; 
+    font-size:20px;
+    font-weight: bolder;
+    transition: 1s;
+}
+
+a.btn:hover{
+    margin-top: 3px;
+    background:#174180dc; 
+    color:#fff;
+    border: 1px solid #a5a6a8;
+    transition: 1s;
+}
+section form input.btn:hover{
+        background:#174180dc; 
+        color:#fff;
+        transition: 1s;
+}
+
+.before,
+.after,
+.Pag{
+    background: #2f3476;
+    color: #fff;
+}
+.before{
+    font-size: 3vh;
+    margin-left: 3vh;
+}
+.after{
+    font-size: 3vh;
+    margin-right: 3vh;
+}
+.after:hover,
+.before:hover{
+    color: #ccc;
+}
+

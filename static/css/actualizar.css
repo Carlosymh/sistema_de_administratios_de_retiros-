@@ -1,0 +1,240 @@
+*{
+    margin: 0;
+    padding: 0;
+
+}
+body{
+    background-color: #fff;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    text-align: center;
+    
+}
+section{
+    background: #eee ;
+    margin: 0;
+    padding: 2rem 0;
+    font-size: 2vh;
+    font-family: 'Khula', sans-serif;
+    color: #2f3476;
+    height: 40vh;
+}
+.container{
+    margin-top: 0;
+    background: #eee;
+    width: 100%;
+    height: 50VH;
+    display:flexbox;
+    padding-top: 1vh;
+}
+
+form{
+    width: 50vh;
+    display: grid;
+    background: #fff;
+    margin: auto;
+    padding: 2vh;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(199, 197, 197);
+    border-radius: 15px;
+
+}
+
+form h2{
+    font-size: 5vh;
+    color: #2f3476;
+    font-family: 'Khula', sans-serif;
+
+}
+
+form label{
+    font-size: 2vh;
+    color: rgb(95, 92, 92);
+}
+
+input,
+select{
+    margin-bottom: 2.5vh;
+    margin-top: 1vh;
+    font-size: 2vh;
+}
+
+
+.btn{
+    font-size: 2vh;
+    width: 25vh;
+    padding: 0.5vh;
+    background: #fff159;
+    color: #2f3476;
+    border:none;
+    border-radius: 5px;
+    margin:  3px auto 3px auto;
+}
+
+.btn:hover{
+    font-size: 2vh;
+    width: 25vh;
+    padding: 0.5vh;
+    background: #2f3476;
+    color: #fff;
+    border:none;
+    border-radius: 5px;
+}
+
+.link_link{
+    margin-top: 3vh;
+    text-decoration: none;
+    color: rgb(214, 206, 206);
+    font-size: 1.5vh;
+}
+.link_link:hover{
+    text-decoration: none;
+    color: rgb(132, 181, 255);
+}
+img{
+    width: 17vh;
+    padding: 1vh 0;
+}
+.Nav_Bar{
+    background: #fff159;
+    color: #2f3476;
+    display: flex;
+    border-bottom: 1px solid #2f3476;
+}
+
+.Nav_Bar button{
+    box-decoration-break: none;
+    background: none;
+    width: 6vh;
+    border: none;
+}
+.Nav_Bar button i{
+    font-size: 5vh;
+    background: none;
+    color: #2f3476;
+}
+.Nav_Bar span{
+    margin: auto  2vh auto auto ;
+    color:#fff;
+    background: #2f3476;
+    padding: 0.25vh;
+    border-radius: 5px;
+}
+
+ .nav_menu{
+    display: block;
+    flex-direction: column;        
+    width: 20vh;
+    position: absolute;
+    background: #eee;
+    padding: 0;
+    margin: 0;
+    height: 0;
+    transition: all 500ms;
+    margin-left: -200px;
+    }
+.nav_menu i,
+.nav_menu h3{
+    background: #eee;
+}
+.nav_menu a{
+    text-decoration: none;
+    background: #eee;
+}
+.nav_menu_visual{
+    display: flex;
+    grid-column: 1;
+    width: 20vh;
+    height: 60vh;
+    position: absolute;
+    background: #fff;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 0 0.5vh #000;
+    border-bottom-right-radius: 20px;
+    transition: all 500ms; 
+
+    }
+ .nav_menu_visual h3{
+     width: 100%;
+     background: #2f3476;
+     color: #fff;
+     margin: 0;
+     margin-bottom: 1vh;
+     padding: 1vh 0;
+     text-align: center;
+}
+ .nav_menu_visual a{
+     width: 80%;
+     background: rgb(247, 247, 244);
+     margin-bottom: 1vh;
+     margin-left: 1vh;
+     text-decoration: none;
+     color: rgb(108, 109, 112);
+     font-size: 2vh;
+     padding: 1vh;
+     border-bottom: #2f3476 solid 1px;
+ }
+ .nav_menu_visual i{
+     font-size: 2.5vh;
+     margin-right: 1vh;
+     color: #2f3476;
+}
+form h5{
+    color: rgb(129, 126, 126);
+}
+
+@media (max-width: 1450px){
+    section{
+        font-size: 2vh;
+    }
+    section h1{
+        text-shadow:0vh 0vh 0.5vh  #fff;
+    }
+
+  
+    form{
+        width: 40vh;
+        display: grid;
+        margin: auto;
+        align-items: center;
+        justify-content: center;
+    
+    }
+    form h2{
+        font-size: 5vh;
+        color: #2f3476;
+        font-family: 'Khula', sans-serif;
+    
+    }
+    
+    
+}
+
+@media (max-width: 950px){
+    section{
+        font-size: 2vh;
+    }
+    section h1{
+        text-shadow:0vh 0vh 0.5vh  #fff;
+    }
+
+    form{
+        width: 30vh;
+        display: grid;
+        margin: auto;
+        align-items: center;
+        justify-content: center;
+    
+    }
+    form h2{
+        font-size: 3.5vh;
+        color: #2f3476;
+        font-family: 'Khula', sans-serif;
+    
+    }
+    
+    
+}
