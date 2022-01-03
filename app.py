@@ -1022,16 +1022,16 @@ def crear_csvretiros():
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Ola"+","+"Meli"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+"\n"
+    datos="Id"+";"+"Ola"+";"+"Meli"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+"\n"
     for res in data:
       datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
+      datos+=";"+str(res[1]).replace(","," ")
+      datos+=";"+str(res[2]).replace(","," ")
+      datos+=";"+str(res[3]).replace(","," ")
+      datos+=";"+str(res[4]).replace(","," ")
+      datos+=";"+str(res[5]).replace(","," ")
+      datos+=";"+str(res[6]).replace(","," ")
+      datos+=";"+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1085,16 +1085,16 @@ def crear_csvdonacion():
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
+    datos="Id"+";"+"Ola"+";"+"SKU"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+";"+"\n"
     for res in data:
-      datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
+      datos+=str(res[0]).replace(","," ")
+      datos+=";"+str(res[1]).replace(","," ")
+      datos+=";"+str(res[2]).replace(","," ")
+      datos+=";"+str(res[3]).replace(","," ")
+      datos+=";"+str(res[4]).replace(","," ")
+      datos+=";"+str(res[5]).replace(","," ")
+      datos+=";"+str(res[6]).replace(","," ")
+      datos+=";"+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1148,16 +1148,16 @@ def crear_ccsvingram():
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
+    datos="Id"+";"+"Ola"+";"+"SKU"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+";"+"\n"
     for res in data:
-      datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
+      datos+=str(res[0]).replace(","," ")
+      datos+=";"+str(res[1]).replace(","," ")
+      datos+=";"+str(res[2]).replace(","," ")
+      datos+=";"+str(res[3]).replace(","," ")
+      datos+=";"+str(res[4]).replace(","," ")
+      datos+=";"+str(res[5]).replace(","," ")
+      datos+=";"+str(res[6]).replace(","," ")
+      datos+=";"+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1401,15 +1401,15 @@ def solicitud_donacion(rowi):
   try:
       if request.method == 'POST':
         if request.method == 'GET':
-          session['rowi_t_p']=rowi
-          row1 = int(session['rowi_t_p'])
+          session['rowi_solicituddonacion']=rowi
+          row1 = int(session['rowi_solicituddonacion'])
           row2 = 50
         else:
-            row1 = int(session['rowi_t_p'])
+            row1 = int(session['rowi_solicituddonacion'])
             row2 =50
         if 'valor' in request.form:
           if len(request.form['valor'])>0:
-            session['filtro_t_p']=request.form['filtro']
+            session['filtro_solicituddonacion']=request.form['filtro']
             session['valor_t_p']=request.form['valor']
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
@@ -1417,7 +1417,7 @@ def solicitud_donacion(rowi):
                 daterange=daterangef.replace("-", "' AND '")
                 session['datefilter']=daterange
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
                 data = cur.fetchall()
                 return render_template('reportes/t_p.html',Datos = session,Infos =data)
               else:
@@ -1905,19 +1905,19 @@ def crear_csvsolicitudretiros():
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Ola"+","+"Meli"+","+"Fecha de Entrega"+","+"Cantidad Solicitada"+","+"QTY_DISP_WMS"+","+"Descripción"+","+"cantidad_susrtida"+","+"Estatus"+","+"Ubicacion"+","+"Fecha de creacion"+"\n"
+    datos="Id"+";"+"Ola"+";"+"Meli"+";"+"Fecha de Entrega"+";"+"Cantidad Solicitada"+";"+"QTY_DISP_WMS"+";"+"Descripción"+";"+"cantidad_susrtida"+";"+"Estatus"+";"+"Ubicacion"+";"+"Fecha de creacion"+"\n"
     for res in data:
       datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
-      datos+=","+str(res[8])
-      datos+=","+str(res[9])
-      datos+=","+str(res[10])
+      datos+=";"+str(res[1]).replace(","," ")
+      datos+=";"+str(res[2]).replace(","," ")
+      datos+=";"+str(res[3]).replace(","," ")
+      datos+=";"+str(res[4]).replace(","," ")
+      datos+=";"+str(res[5]).replace(","," ")
+      datos+=";"+str(res[6]).replace(","," ")
+      datos+=";"+str(res[7]).replace(","," ")
+      datos+=";"+str(res[8]).replace(","," ")
+      datos+=";"+str(res[9]).replace(","," ")
+      datos+=";"+str(res[10]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1973,20 +1973,20 @@ def crear_csvsolicituddonacion():
         data = cur.fetchall()
     datos="Id"+","+"Pre-Alert key"+","+"Facility Origen"+","+"Site Origen"+","+"Facility Destino"+","+"Site Destino"+","+"Transporte"+","+"Transportista"+","+"Placas"+","+"Orden"+","+"Paquetera"+","+"Marchamo"+","+"Responsable"+","+"Fecha y Hora"+","+"\n"
     for res in data:
-      datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
-      datos+=","+str(res[8])
-      datos+=","+str(res[9])
-      datos+=","+str(res[10])
-      datos+=","+str(res[11])
-      datos+=","+str(res[12])
-      datos+=","+str(res[14])
+      datos+=str(res[0]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
+      datos+=","+str(res[8]).replace(","," ")
+      datos+=","+str(res[9]).replace(","," ")
+      datos+=","+str(res[10]).replace(","," ")
+      datos+=","+str(res[11]).replace(","," ")
+      datos+=","+str(res[12]).replace(","," ")
+      datos+=","+str(res[14]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -2042,20 +2042,20 @@ def crear_ccsvsolicitudingram():
         data = cur.fetchall()
     datos="Id"+","+"Pre-Alert key"+","+"Facility Origen"+","+"Site Origen"+","+"Facility Destino"+","+"Site Destino"+","+"Transporte"+","+"Transportista"+","+"Placas"+","+"Orden"+","+"Paquetera"+","+"Marchamo"+","+"Responsable"+","+"Fecha y Hora"+","+"\n"
     for res in data:
-      datos+=str(res[0])
-      datos+=","+str(res[1])
-      datos+=","+str(res[2])
-      datos+=","+str(res[3])
-      datos+=","+str(res[4])
-      datos+=","+str(res[5])
-      datos+=","+str(res[6])
-      datos+=","+str(res[7])
-      datos+=","+str(res[8])
-      datos+=","+str(res[9])
-      datos+=","+str(res[10])
-      datos+=","+str(res[11])
-      datos+=","+str(res[12])
-      datos+=","+str(res[14])
+      datos+=str(res[0]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
+      datos+=","+str(res[8]).replace(","," ")
+      datos+=","+str(res[9]).replace(","," ")
+      datos+=","+str(res[10]).replace(","," ")
+      datos+=","+str(res[11]).replace(","," ")
+      datos+=","+str(res[12]).replace(","," ")
+      datos+=","+str(res[14]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)

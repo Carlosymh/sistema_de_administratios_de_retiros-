@@ -101,6 +101,12 @@
                             <a href="/Reporte_Retiros/350" class="in"> 8 </a>
                             <a href="/Reporte_Retiros/400" class="in"> 9 </a>
                             <a href="/Reporte_Retiros/450" class="in"> 10 </a>
+                            {%if row >= 450 %}
+                            {% set numpag=(row/50)+1 |int%}
+                            <span class="in">    </span>
+                            <a href="/Reporte_Retiros/{{(numpag*50) |int}}" class="in"> {{numpag | int}} </a>
+                            <a href="/Reporte_Retiros/{{((numpag+1)*50) |int}}" class="in"> {{(numpag+1) |int}} </a>
+                            {%endif%}
                             <a href="/Reporte_Retiros/{{rowMas}}" class="before">
                                 <i class="fas fa-angle-double-right">
                                 </i>

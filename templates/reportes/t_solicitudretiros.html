@@ -47,7 +47,7 @@
             </label>
             <input type="submit" value="Buscar">
         </form>
-        <a href="/csvretiros" target="_blank" class="download_csv"><i class="fas fa-file-download"></i>  Descargar</a>
+        <a href="/csvsolicitudretiros" target="_blank" class="download_csv"><i class="fas fa-file-download"></i>  Descargar</a>
     </div>
         <div class="fondo">
         <section>
@@ -111,8 +111,7 @@
                             <a href="/Solicitudes_Retiros/450" class="in"> 10 </a>
                             {%if row >= 450 %}
                             {% set numpag=(row/50)+1 |int%}
-                            
-                            <a href="#" class="in">     </a>
+                            <span class="in">    </span>
                             <a href="/Solicitudes_Retiros/{{(numpag*50) |int}}" class="in"> {{numpag | int}} </a>
                             <a href="/Solicitudes_Retiros/{{((numpag+1)*50) |int}}" class="in"> {{(numpag+1) |int}} </a>
                             {%endif%}
