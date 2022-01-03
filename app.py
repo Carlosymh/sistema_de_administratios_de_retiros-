@@ -71,7 +71,6 @@ def validarcontrasena(user):
             return render_template('index.html')
       else:
         return render_template('index.html')   
-
 #Pagina Principal
 @app.route('/home',methods=['POST','GET'])
 def home():
@@ -346,8 +345,8 @@ def Reporte_retiros(rowi):
                 if 'valor_recibo' in session:
                   session.pop('filtro_recibo')
                   session.pop('valor_recibo')
-                  if 'datefilter' in session:
-                    session.pop('datefilter')
+                  if 'datefilter_recibo' in session:
+                    session.pop('datefilter_recibo')
                   cur = mysql.connection.cursor()
                   cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
@@ -494,7 +493,7 @@ def Reporte_retiros(rowi):
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         else:
           if 'datefilter_recibo' in session:
-            if len(session['datefilter'])>0:
+            if len(session['datefilter_recibo'])>0:
               cur = mysql.connection.cursor()
               cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
               data = cur.fetchall()
@@ -1171,228 +1170,228 @@ def solicitudes_retiros(rowi):
   try:
       if request.method == 'POST':
         if request.method == 'GET':
-          session['rowi_recibo']=rowi
-          row1 = int(session['rowi_recibo'])
+          session['rowi_solicitudrecibo']=rowi
+          row1 = int(session['rowi_solicitudrecibo'])
           row2 = 50
         else:
-            row1 = int(session['rowi_recibo'])
+            row1 = int(session['rowi_solicitudrecibo'])
             row2 =50
         if 'valor' in request.form:
           if len(request.form['valor'])>0:
-            session['filtro_recibo']=request.form['filtro']
-            session['valor_recibo']=request.form['valor']
+            session['filtro_solicitudrecibo']=request.form['filtro']
+            session['valor_solicitudrecibo']=request.form['valor']
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
-                session['datefilter_recibo']=daterange
+                session['datefilter_solicitudrecibo']=daterange
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter_recibo')
+              session.pop('datefilter_solicitudrecibo')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
-                if 'valor_recibo' in session:
-                  if len(session['valor_recibo'])>0:
+                if 'valor_solicitudrecibo' in session:
+                  if len(session['valor_solicitudrecibo'])>0:
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
-                    session['datefilter_recibo']=daterange
+                    session['datefilter_solicitudrecibo']=daterange
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+                    cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                   else:
-                    session.pop('filtro_recibo')
-                    session.pop('valor_recibo')
+                    session.pop('filtro_solicitudrecibo')
+                    session.pop('valor_solicitudrecibo')
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                    cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
-                if 'valor_recibo' in session:
-                  session.pop('filtro_recibo')
-                  session.pop('valor_recibo')
-                  if 'datefilter' in session:
-                    session.pop('datefilter')
+                if 'valor_solicitudrecibo' in session:
+                  session.pop('filtro_solicitudrecibo')
+                  session.pop('valor_solicitudrecibo')
+                  if 'datefilter_solicitudrecibo' in session:
+                    session.pop('datefilter_solicitudrecibo')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
-              if 'valor_recibo' in session:
-                if 'datefilter_recibo' in session:
-                    session.pop('datefilter_recibo')
-                session.pop('filtro_recibo')
-                session.pop('valor_recibo')
+              if 'valor_solicitudrecibo' in session:
+                if 'datefilter_solicitudrecibo' in session:
+                    session.pop('datefilter_solicitudrecibo')
+                session.pop('filtro_solicitudrecibo')
+                session.pop('valor_solicitudrecibo')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
 
         else:
-          if 'valor_recibo' in session:
-            if len(session['valor_recibo'])>0:
-              if 'datefilter_recibo' in session:
-                if len(session['datefilter_recibo'])>0:
+          if 'valor_solicitudrecibo' in session:
+            if len(session['valor_solicitudrecibo'])>0:
+              if 'datefilter_solicitudrecibo' in session:
+                if len(session['datefilter_solicitudrecibo'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
-                  session.pop('datefilter_recibo')
+                  session.pop('datefilter_solicitudrecibo')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
             else:
-              session.pop('filtro_recibo')
-              session.pop('valor_recibo')
-              if 'datefilter_recibo' in session:
-                if len(session['datefilter_recibo'])>0:
+              session.pop('filtro_solicitudrecibo')
+              session.pop('valor_solicitudrecibo')
+              if 'datefilter_solicitudrecibo' in session:
+                if len(session['datefilter_solicitudrecibo'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
-            if 'datefilter_recibo' in session:
-              if len(session['datefilter_recibo'])>0:
+            if 'datefilter_solicitudrecibo' in session:
+              if len(session['datefilter_solicitudrecibo'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter_recibo')
+                session.pop('datefilter_solicitudrecibo')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
                 if len(request.form['datefilter'])>0:
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
-                  session['datefilter_recibo']=daterange
+                  session['datefilter_solicitudrecibo']=daterange
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros WHERE  fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
+                  return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
-          session['rowi_recibo']=rowi
-          row1 = int(session['rowi_recibo'])
+          session['rowi_solicitudrecibo']=rowi
+          row1 = int(session['rowi_solicitudrecibo'])
           row2 = 50
         else:
-          row1 = int(session['rowi_recibo'])
+          row1 = int(session['rowi_solicitudrecibo'])
           row2 =50
-        if 'valor_recibo' in session:
-          if len(session['valor_recibo'])>0:
-            if 'datefilter_recibo' in session:
-              if len(session['datefilter_recibo'])>0:
+        if 'valor_solicitudrecibo' in session:
+          if len(session['valor_solicitudrecibo'])>0:
+            if 'datefilter_solicitudrecibo' in session:
+              if len(session['datefilter_solicitudrecibo'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter_recibo')
+                session.pop('datefilter_solicitudrecibo')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
+              return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
           else:
-            session.pop('filtro_recibo')
-            session.pop('valor_recibo')
-            if 'datefilter_recibo' in session:
-              if len(session['datefilter_recibo'])>0:
+            session.pop('filtro_solicitudrecibo')
+            session.pop('valor_solicitudrecibo')
+            if 'datefilter_solicitudrecibo' in session:
+              if len(session['datefilter_solicitudrecibo'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter_recibo')
+                session.pop('datefilter_solicitudrecibo')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
         else:
-          if 'datefilter_recibo' in session:
-            if len(session['datefilter'])>0:
+          if 'datefilter_solicitudrecibo' in session:
+            if len(session['datefilter_solicitudrecibo'])>0:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter_recibo')
+              session.pop('datefilter_solicitudrecibo')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
-            return render_template('reportes/t_retiros.html',Datos = session,Infos =data)         
+            return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
     return render_template('index.html')
@@ -1862,51 +1861,51 @@ def solicitud_ingram(rowi):
 @app.route('/csvsolicitudretiros',methods=['POST','GET'])
 def crear_csvsolicitudretiros():
     site=session['SiteName']
-    row1 = int(session['rowi_recibo'])
-    row2 =50
-    if 'valor_recibo' in session:
-      if len(session['valor_recibo'])>0:
-        if 'datefilter_recibo' in session:
-          if len(session['datefilter_recibo'])>0:
+    row1 = int(session['rowi_solicitudrecibo'])
+    row2 =5000
+    if 'valor_solicitudrecibo' in session:
+      if len(session['valor_solicitudrecibo'])>0:
+        if 'datefilter_solicitudrecibo' in session:
+          if len(session['datefilter_solicitudrecibo'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
+          cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
           data = cur.fetchall()
       else:
-        if 'datefilter_recibo' in session:
-          if len(session['datefilter_recibo'])>0:
+        if 'datefilter_solicitudrecibo' in session:
+          if len(session['datefilter_solicitudrecibo'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
     else:
-      if 'datefilter_recibo' in session:
-        if len(session['datefilter_recibo'])>0:
+      if 'datefilter_solicitudrecibo' in session:
+        if len(session['datefilter_solicitudrecibo'])>0:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+          cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
           data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
       else:
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+        cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Ola"+","+"Meli"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+"\n"
+    datos="Id"+","+"Ola"+","+"Meli"+","+"Fecha de Entrega"+","+"Cantidad Solicitada"+","+"QTY_DISP_WMS"+","+"Descripción"+","+"cantidad_susrtida"+","+"Estatus"+","+"Ubicacion"+","+"Fecha de creacion"+"\n"
     for res in data:
       datos+=str(res[0])
       datos+=","+str(res[1])
@@ -1916,10 +1915,13 @@ def crear_csvsolicitudretiros():
       datos+=","+str(res[5])
       datos+=","+str(res[6])
       datos+=","+str(res[7])
+      datos+=","+str(res[8])
+      datos+=","+str(res[9])
+      datos+=","+str(res[10])
       datos+="\n"
 
     response = make_response(datos)
-    response.headers["Content-Disposition"] = "attachment; filename="+"Reportre_Recibo"+str(datetime.today())+".csv"; 
+    response.headers["Content-Disposition"] = "attachment; filename="+"solicitud_retiros-"+str(datetime.today())+".csv"; 
     return response
 
 @app.route('/csvsolicituddonacion',methods=['POST','GET'])
