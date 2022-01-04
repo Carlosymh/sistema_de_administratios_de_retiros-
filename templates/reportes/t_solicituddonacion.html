@@ -33,13 +33,14 @@
     {% endblock %}
     {% block body%}
     <div class="filtros">
-        <form action="/Reporte_donacion/0" method="post" class="form_filtros">
+        <form action="/Solicitudes_donacion/0" method="post" class="form_filtros">
             <select name="filtro">
-                <option value="id_donacion">ID</option>
-                <option value="nuemro_de_ola">Ola</option>
+                <option value="id_donacion ">ID</option>
+                <option value="numero_ola">Ola</option>
                 <option value="SKU">SKU</option>
+                <option value="descripcion">Descripcion</option>
+                <option value="status">Estatus</option>
                 <option value="ubicacion">Ubicacion</option>
-                <option value="responsable">Responsable</option>
             </select>
             <input autocomplete="off" type="text" name="valor">
             <label   for="datefilter">Fecha: </label>
@@ -47,7 +48,7 @@
             </label>
             <input type="submit" value="Buscar">
         </form>
-        <a href="/csvdonacion" target="_blank" class="download_csv"><i class="fas fa-file-download"></i>  Descargar</a>
+        <a href="/csvsolicituddonacion" target="_blank" class="download_csv"><i class="fas fa-file-download"></i>  Descargar</a>
     </div>
         <div class="fondo">
         <section>
@@ -57,9 +58,13 @@
                         <th> ID </th>
                         <th> Ola</th>
                         <th> SKU</th>
-                        <th> Cantidad</th>
+                        <th> Cantidad Solicitada</th>
+                        <th> Costo Unitario </th>
+                        <th> Suma de GMV  </th>
+                        <th> Descripcion</th>
+                        <th> Cantidad Surtida  </th>
+                        <th> Estatus </th>
                         <th> Ubicacion </th>
-                        <th> Responsable </th>
                         <th> Fecha Y Hora </th>
                     </tr>
                 </thead>
@@ -71,42 +76,47 @@
                         <td>{{Info.2}}</td>
                         <td>{{Info.3}}</td>
                         <td>{{Info.4}}</td>
+                        <td>{{Info.5}}</td>
                         <td>{{Info.6}}</td>
+                        <td>{{Info.7}}</td>
+                        <td>{{Info.8}}</td>
+                        <td>{{Info.9}}</td>
+                        <td>{{Info.10}}</td>
                     </tr>
                     {%endfor%}
                     <tr class="Pag">
                         <td colspan="13" class="Pag">
-                            {%set row= Datos['rowi_donacion'] |int%}
+                            {%set row= Datos['rowi_solicituddonacion'] |int%}
                             {%if row==0%}
-                            <a href="/Reporte_donacion/0" class="after">
+                            <a href="/Solicitudes_donacion/0" class="after">
                                 <i class="fas fa-angle-double-left">
                                 </i>
                             </a>
                             {%else%}
                             {%set rowMenos=row-50 | int%}
-                            <a href="/Reporte_donacion/{{rowMenos}}" class="after">
+                            <a href="/Solicitudes_donacion/{{rowMenos}}" class="after">
                                 <i class="fas fa-angle-double-left">
                                 </i>
                             </a>
                             {%endif%}
                             {%set rowMas=row+50 | int%}
-                            <a href="/Reporte_donacion/0" class="in"> 1 </a>
-                            <a href="/Reporte_donacion/50" class="in"> 2 </a>
-                            <a href="/Reporte_donacion/100" class="in"> 3 </a>
-                            <a href="/Reporte_donacion/150" class="in"> 4 </a>
-                            <a href="/Reporte_donacion/200" class="in"> 5 </a>
-                            <a href="/Reporte_donacion/250" class="in"> 6 </a>
-                            <a href="/Reporte_donacion/300" class="in"> 7 </a>
-                            <a href="/Reporte_donacion/350" class="in"> 8 </a>
-                            <a href="/Reporte_donacion/400" class="in"> 9 </a>
-                            <a href="/Reporte_donacion/450" class="in"> 10 </a>
+                            <a href="/Solicitudes_donacion/0" class="in"> 1 </a>
+                            <a href="/Solicitudes_donacion/50" class="in"> 2 </a>
+                            <a href="/Solicitudes_donacion/100" class="in"> 3 </a>
+                            <a href="/Solicitudes_donacion/150" class="in"> 4 </a>
+                            <a href="/Solicitudes_donacion/200" class="in"> 5 </a>
+                            <a href="/Solicitudes_donacion/250" class="in"> 6 </a>
+                            <a href="/Solicitudes_donacion/300" class="in"> 7 </a>
+                            <a href="/Solicitudes_donacion/350" class="in"> 8 </a>
+                            <a href="/Solicitudes_donacion/400" class="in"> 9 </a>
+                            <a href="/Solicitudes_donacion/450" class="in"> 10 </a>
                             {%if row >= 450 %}
                             {% set numpag=(row/50)+1 |int%}
                             <span class="in">    </span>
-                            <a href="/Reporte_donacion/{{(numpag*50) |int}}" class="in"> {{numpag | int}} </a>
-                            <a href="/Reporte_donacion/{{((numpag+1)*50) |int}}" class="in"> {{(numpag+1) |int}} </a>
+                            <a href="/Solicitudes_donacion/{{(numpag*50) |int}}" class="in"> {{numpag | int}} </a>
+                            <a href="/Solicitudes_donacion/{{((numpag+1)*50) |int}}" class="in"> {{(numpag+1) |int}} </a>
                             {%endif%}
-                            <a href="/Reporte_donacion/{{rowMas}}" class="before">
+                            <a href="/Solicitudes_donacion/{{rowMas}}" class="before">
                                 <i class="fas fa-angle-double-right">
                                 </i>
                             </a>

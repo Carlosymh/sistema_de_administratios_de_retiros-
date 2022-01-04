@@ -978,8 +978,8 @@ def Reporte_ingram(rowi):
 @app.route('/csvretiros',methods=['POST','GET'])
 def crear_csvretiros():
     site=session['SiteName']
-    row1 = int(session['rowi_recibo'])
-    row2 =50
+    row1 = 0
+    row2 =5000
     if 'valor_recibo' in session:
       if len(session['valor_recibo'])>0:
         if 'datefilter_recibo' in session:
@@ -1041,8 +1041,8 @@ def crear_csvretiros():
 @app.route('/csvdonacion',methods=['POST','GET'])
 def crear_csvdonacion():
     site=session['SiteName']
-    row1 = int(session['rowi_donacion'])
-    row2 =50
+    row1 = 0
+    row2 =5000
     if 'valor_donacion' in session:
       if len(session['valor_donacion'])>0:
         if 'datefilter_donacion' in session:
@@ -1104,8 +1104,8 @@ def crear_csvdonacion():
 @app.route('/csvingram',methods=['POST','GET'])
 def crear_ccsvingram():
     site=session['SiteName']
-    row1 = int(session['rowi_ingram'])
-    row2 =50
+    row1 = 0
+    row2 =5000
     if 'valor_ingram' in session:
       if len(session['valor_ingram'])>0:
         if 'datefilter_ingram' in session:
@@ -1410,458 +1410,457 @@ def solicitud_donacion(rowi):
         if 'valor' in request.form:
           if len(request.form['valor'])>0:
             session['filtro_solicituddonacion']=request.form['filtro']
-            session['valor_t_p']=request.form['valor']
+            session['valor_solicituddonacion']=request.form['valor']
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
-                session['datefilter']=daterange
+                session['datefilter_solicituddonacion']=daterange
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter')
+              session.pop('datefilter_solicituddonacion')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
-                if 'valor_t_p' in session:
-                  if len(session['valor_t_p'])>0:
+                if 'valor_solicituddonacion' in session:
+                  if len(session['valor_solicituddonacion'])>0:
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
-                    session['datefilter']=daterange
+                    session['datefilter_solicituddonacion']=daterange
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                    cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                   else:
-                    session.pop('filtro_t_p')
-                    session.pop('valor_t_p')
+                    session.pop('filtro_solicituddonacion')
+                    session.pop('valor_solicituddonacion')
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                    cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
-                if 'valor_t_p' in session:
-                  session.pop('filtro_t_p')
-                  session.pop('valor_t_p')
-                  if 'datefilter' in session:
-                    session.pop('datefilter')
+                if 'valor_solicituddonacion' in session:
+                  session.pop('filtro_solicituddonacion')
+                  session.pop('valor_solicituddonacion')
+                  if 'datefilter_solicituddonacion' in session:
+                    session.pop('datefilter_solicituddonacion')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
-              if 'valor_t_p' in session:
-                if 'datefilter' in session:
-                    session.pop('datefilter')
-                session.pop('filtro_t_p')
-                session.pop('valor_t_p')
+              if 'valor_solicituddonacion' in session:
+                if 'datefilter_solicituddonacion' in session:
+                    session.pop('datefilter_solicituddonacion')
+                session.pop('filtro_solicituddonacion')
+                session.pop('valor_solicituddonacion')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
 
         else:
-          if 'valor_t_p' in session:
-            if len(session['valor_t_p'])>0:
-              if 'datefilter' in session:
-                if len(session['datefilter'])>0:
+          if 'valor_solicituddonacion' in session:
+            if len(session['valor_solicituddonacion'])>0:
+              if 'datefilter_solicituddonacion' in session:
+                if len(session['datefilter_solicituddonacion'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
-                  session.pop('datefilter')
+                  session.pop('datefilter_solicituddonacion')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
             else:
-              session.pop('filtro_t_p')
-              session.pop('valor_t_p')
-              if 'datefilter' in session:
-                if len(session['datefilter'])>0:
+              session.pop('filtro_solicituddonacion')
+              session.pop('valor_solicituddonacion')
+              if 'datefilter_solicituddonacion' in session:
+                if len(session['datefilter_solicituddonacion'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+            if 'datefilter_solicituddonacion' in session:
+              if len(session['datefilter_solicituddonacion'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicituddonacion')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
                 if len(request.form['datefilter'])>0:
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
-                  session['datefilter']=daterange
+                  session['datefilter_solicituddonacion']=daterange
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE  Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion WHERE  fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                  return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
-          session['rowi_t_p']=rowi
-          row1 = int(session['rowi_t_p'])
+          session['rowi_solicituddonacion']=rowi
+          row1 = int(session['rowi_solicituddonacion'])
           row2 = 50
         else:
-          row1 = int(session['rowi_t_p'])
+          row1 = int(session['rowi_solicituddonacion'])
           row2 =50
-        if 'valor_t_p' in session:
-          if len(session['valor_t_p'])>0:
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+        if 'valor_solicituddonacion' in session:
+          if len(session['valor_solicituddonacion'])>0:
+            if 'datefilter_solicituddonacion' in session:
+              if len(session['datefilter_solicituddonacion'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicituddonacion')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+              return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
           else:
-            session.pop('filtro_t_p')
-            session.pop('valor_t_p')
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+            session.pop('filtro_solicituddonacion')
+            session.pop('valor_solicituddonacion')
+            if 'datefilter_solicituddonacion' in session:
+              if len(session['datefilter_solicituddonacion'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicituddonacion')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
         else:
-          if 'datefilter' in session:
+          if 'datefilter_solicituddonacion' in session:
             if len(session['datefilter_recibo'])>0:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+              cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter')
+              session.pop('datefilter_solicituddonacion')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
-            return render_template('reportes/t_p.html',Datos = session,Infos =data)         
+            return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
     return render_template('index.html')
 
 @app.route('/Solicitudes_Ingram/<rowi>',methods=['POST','GET'])
 def solicitud_ingram(rowi):
-  try:
+  # try:
       if request.method == 'POST':
         if request.method == 'GET':
-          session['rowi_t_p']=rowi
-          row1 = int(session['rowi_t_p'])
+          session['rowi_solicitudingram']=rowi
+          row1 = int(session['rowi_solicitudingram'])
           row2 = 50
         else:
-            row1 = int(session['rowi_t_p'])
+            row1 = int(session['rowi_solicitudingram'])
             row2 =50
         if 'valor' in request.form:
           if len(request.form['valor'])>0:
-            session['filtro_t_p']=request.form['filtro']
-            session['valor_t_p']=request.form['valor']
+            session['filtro_solicitudingram']=request.form['filtro']
+            session['valor_solicitudingram']=request.form['valor']
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
-                session['datefilter']=daterange
+                session['datefilter_solicitudingram']=daterange
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter')
+              session.pop('datefilter_solicitudingram')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+              cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
               if len(request.form['datefilter'])>0:
-                if 'valor_t_p' in session:
-                  if len(session['valor_t_p'])>0:
+                if 'valor_solicitudingram' in session:
+                  if len(session['valor_solicitudingram'])>0:
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
-                    session['datefilter']=daterange
+                    session['datefilter_solicitudingram']=daterange
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                    cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                   else:
-                    session.pop('filtro_t_p')
-                    session.pop('valor_t_p')
+                    session.pop('filtro_solicitudingram')
+                    session.pop('valor_solicitudingram')
                     cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                    cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                     data = cur.fetchall()
-                    return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                    return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
-                if 'valor_t_p' in session:
-                  session.pop('filtro_t_p')
-                  session.pop('valor_t_p')
-                  if 'datefilter' in session:
-                    session.pop('datefilter')
+                if 'valor_solicitudingram' in session:
+                  session.pop('filtro_solicitudingram')
+                  session.pop('valor_solicitudingram')
+                  if 'datefilter_solicitudingram' in session:
+                    session.pop('datefilter_solicitudingram')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
-              if 'valor_t_p' in session:
-                if 'datefilter' in session:
-                    session.pop('datefilter')
-                session.pop('filtro_t_p')
-                session.pop('valor_t_p')
+              if 'valor_solicitudingram' in session:
+                if 'datefilter_solicitudingram' in session:
+                    session.pop('datefilter_solicitudingram')
+                session.pop('filtro_solicitudingram')
+                session.pop('valor_solicitudingram')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
 
         else:
-          if 'valor_t_p' in session:
-            if len(session['valor_t_p'])>0:
-              if 'datefilter' in session:
-                if len(session['datefilter'])>0:
+          if 'valor_solicitudingram' in session:
+            if len(session['valor_solicitudingram'])>0:
+              if 'datefilter_solicitudingram' in session:
+                if len(session['datefilter_solicitudingram'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
-                  session.pop('datefilter')
+                  session.pop('datefilter_solicitudingram')
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                  cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
             else:
-              session.pop('filtro_t_p')
-              session.pop('valor_t_p')
-              if 'datefilter' in session:
-                if len(session['datefilter'])>0:
+              session.pop('filtro_solicitudingram')
+              session.pop('valor_solicitudingram')
+              if 'datefilter_solicitudingram' in session:
+                if len(session['datefilter_solicitudingram'])>0:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+            if 'datefilter_solicitudingram' in session:
+              if len(session['datefilter_solicitudingram'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicitudingram')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
                 if len(request.form['datefilter'])>0:
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
-                  session['datefilter']=daterange
+                  session['datefilter_solicitudingram']=daterange
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert WHERE  Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                  cur.execute('SELECT * FROM ingram WHERE  fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                  cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
-                  return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                  return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
               else:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
-          session['rowi_t_p']=rowi
-          row1 = int(session['rowi_t_p'])
+          session['rowi_solicitudingram']=rowi
+          row1 = int(session['rowi_solicitudingram'])
           row2 = 50
         else:
-          row1 = int(session['rowi_t_p'])
+          row1 = int(session['rowi_solicitudingram'])
           row2 =50
-        if 'valor_t_p' in session:
-          if len(session['valor_t_p'])>0:
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+        if 'valor_solicitudingram' in session:
+          if len(session['valor_solicitudingram'])>0:
+            if 'datefilter_solicitudingram' in session:
+              if len(session['datefilter_solicitudingram'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicitudingram')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+              cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data) 
+              return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
           else:
-            session.pop('filtro_t_p')
-            session.pop('valor_t_p')
-            if 'datefilter' in session:
-              if len(session['datefilter'])>0:
+            session.pop('filtro_solicitudingram')
+            session.pop('valor_solicitudingram')
+            if 'datefilter_solicitudingram' in session:
+              if len(session['datefilter_solicitudingram'])>0:
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+                cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
-                session.pop('datefilter')
+                session.pop('datefilter_solicitudingram')
                 cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+                cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
-                return render_template('reportes/t_p.html',Datos = session,Infos =data)
+                return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
         else:
-          if 'datefilter' in session:
-            if len(session['datefilter'])>0:
+          if 'datefilter_solicitudingram' in session:
+            if len(session['datefilter_solicitudingram'])>0:
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+              cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
-              session.pop('datefilter')
+              session.pop('datefilter_solicitudingram')
               cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+              cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
-              return render_template('reportes/t_p.html',Datos = session,Infos =data)
+              return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
-            return render_template('reportes/t_p.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
-    return render_template('index.html')
+            return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)         
+  # except:
+  #   return render_template('index.html')
 
 @app.route('/csvsolicitudretiros',methods=['POST','GET'])
 def crear_csvsolicitudretiros():
     site=session['SiteName']
-    row1 = int(session['rowi_solicitudrecibo'])
+    row1 = 0
     row2 =5000
     if 'valor_solicitudrecibo' in session:
       if len(session['valor_solicitudrecibo'])>0:
@@ -1927,51 +1926,51 @@ def crear_csvsolicitudretiros():
 @app.route('/csvsolicituddonacion',methods=['POST','GET'])
 def crear_csvsolicituddonacion():
     site=session['SiteName']
-    row1 = int(session['rowi_t_p'])
-    row2 =50
-    if 'valor_t_p' in session:
-      if len(session['valor_t_p'])>0:
-        if 'datefilter' in session:
-          if len(session['datefilter'])>0:
+    row1 = 0
+    row2 =5000
+    if 'valor_solicituddonacion' in session:
+      if len(session['valor_solicituddonacion'])>0:
+        if 'datefilter_solicituddonacion' in session:
+          if len(session['datefilter_solicituddonacion'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+          cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
           data = cur.fetchall()
       else:
-        if 'datefilter' in session:
-          if len(session['datefilter'])>0:
+        if 'datefilter_solicituddonacion' in session:
+          if len(session['datefilter_solicituddonacion'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+            cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
     else:
-      if 'datefilter' in session:
+      if 'datefilter_solicituddonacion' in session:
         if len(session['datefilter'])>0:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+          cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
           data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
       else:
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+        cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Pre-Alert key"+","+"Facility Origen"+","+"Site Origen"+","+"Facility Destino"+","+"Site Destino"+","+"Transporte"+","+"Transportista"+","+"Placas"+","+"Orden"+","+"Paquetera"+","+"Marchamo"+","+"Responsable"+","+"Fecha y Hora"+","+"\n"
+    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad Solicitada"+","+"Costo Unitario"+","+"Suma de GMV"+","+"Descripcion"+","+"Cantidad Surtida "+","+"Status"+","+"Ubicacion"+","+"Fecha "+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
       datos+=","+str(res[1]).replace(","," ")
@@ -1984,63 +1983,60 @@ def crear_csvsolicituddonacion():
       datos+=","+str(res[8]).replace(","," ")
       datos+=","+str(res[9]).replace(","," ")
       datos+=","+str(res[10]).replace(","," ")
-      datos+=","+str(res[11]).replace(","," ")
-      datos+=","+str(res[12]).replace(","," ")
-      datos+=","+str(res[14]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
-    response.headers["Content-Disposition"] = "attachment; filename="+"Prealert"+str(datetime.today())+".csv"; 
+    response.headers["Content-Disposition"] = "attachment;filename= Solicitud_Donacion-"+str(datetime.today())+".csv"; 
     return response
 
 @app.route('/csvsolicitudingram',methods=['POST','GET'])
 def crear_ccsvsolicitudingram():
     site=session['SiteName']
-    row1 = int(session['rowi_t_p'])
-    row2 =50
-    if 'valor_t_p' in session:
-      if len(session['valor_t_p'])>0:
-        if 'datefilter' in session:
-          if len(session['datefilter'])>0:
+    row1 = 0
+    row2 =5000
+    if 'valor_solicitudingram' in session:
+      if len(session['valor_solicitudingram'])>0:
+        if 'datefilter_solicitudingram' in session:
+          if len(session['datefilter_solicitudingram'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\' AND Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],session['datefilter'],row1,row2))
+            cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+            cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_t_p'],session['valor_t_p'],row1,row2))
+          cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],row1,row2))
           data = cur.fetchall()
       else:
-        if 'datefilter' in session:
-          if len(session['datefilter'])>0:
+        if 'datefilter_solicitudingram' in session:
+          if len(session['datefilter_solicitudingram'])>0:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+            cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
             data = cur.fetchall()
           else:
             cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+            cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
     else:
-      if 'datefilter' in session:
+      if 'datefilter_solicitudingram' in session:
         if len(session['datefilter'])>0:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter'],row1,row2))
+          cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],row1,row2))
           data = cur.fetchall()
         else:
           cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM prealert LIMIT {}, {}'.format(row1,row2))
+          cur.execute('SELECT * FROM ingram LIMIT {}, {}'.format(row1,row2))
       else:
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM prealert  LIMIT {}, {}'.format(row1,row2))
+        cur.execute('SELECT * FROM ingram  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+","+"Pre-Alert key"+","+"Facility Origen"+","+"Site Origen"+","+"Facility Destino"+","+"Site Destino"+","+"Transporte"+","+"Transportista"+","+"Placas"+","+"Orden"+","+"Paquetera"+","+"Marchamo"+","+"Responsable"+","+"Fecha y Hora"+","+"\n"
+    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad Solicitada"+","+"Cantidad Disponible"+","+"Piezas Surtidas"+","+"Descripcion"+","+"Estatus"+","+"Ubicacion"+","+"Fecha"+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
       datos+=","+str(res[1]).replace(","," ")
@@ -2052,14 +2048,10 @@ def crear_ccsvsolicitudingram():
       datos+=","+str(res[7]).replace(","," ")
       datos+=","+str(res[8]).replace(","," ")
       datos+=","+str(res[9]).replace(","," ")
-      datos+=","+str(res[10]).replace(","," ")
-      datos+=","+str(res[11]).replace(","," ")
-      datos+=","+str(res[12]).replace(","," ")
-      datos+=","+str(res[14]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
-    response.headers["Content-Disposition"] = "attachment; filename="+"Prealert"+str(datetime.today())+".csv"; 
+    response.headers["Content-Disposition"] = "attachment; filename="+"Solicitud_Ingram-"+str(datetime.today())+".csv"; 
     return response
 
 
@@ -2076,32 +2068,27 @@ def pdf_template(ubicacion):
         site = session['SiteName']
         today= datetime.today()
  
-        pdf = FPDF(orientation = 'P',unit = 'mm', format='128x60mm')
+        pdf = FPDF(orientation = 'P',unit = 'mm',format= (128,60))
         pdf.add_page()
          
         page_width = pdf.w - 2 * pdf.l_margin
          
         pdf.ln(5)
-        pdf.image('static/img/MercadoLibre_logo.png', x= 20, y = 10, w=50, h = 20)
+        pdf.image('static/img/MercadoLibre_logo.png', x= 5, y = 5, w=25, h = 10)
         pdf.set_font('Times','B',30)
         pdf.set_text_color(0,47,109)  
-        pdf.text(x = 80, y = 19 ,txt =  "Withdrawal System" )
+        pdf.text(x = 35, y = 15 ,txt =  "Withdrawal System" )
         pdf.ln(80)
         
-        pdf.image('qr.png', x= 20, y = 45, w=40, h = 40)
+        pdf.image('qr.png', x= 10, y = 20, w=40, h = 40)
 
         pdf.set_font('Times','B',12) 
         
         pdf.set_text_color(0,0,0) 
-        pdf.text( x= 70, y = 57, txt = str(today))
-        pdf.text( x= 70, y = 67, txt = "Ubicacion:")
-        pdf.text( x= 70, y = 77, txt = qr)
+        pdf.text( x= 70, y = 27, txt = str(today))
+        pdf.text( x= 70, y = 37, txt = "Ubicacion:")
+        pdf.text( x= 70, y = 47, txt = qr)
 
-        col_widt3 = page_width/2
-        pdf.ln(15)
-        pdf.set_font('Times','B',12)
-        pdf.cell(page_width, 8.0, '_______________________________________________________________________', align='C')
-         
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
 
