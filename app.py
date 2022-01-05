@@ -283,7 +283,7 @@ def Cerrar_session():
 #Reportes
 @app.route('/Reporte_Retiros/<rowi>',methods=['POST','GET'])
 def Reporte_retiros(rowi):
-  try:
+  # try:
       if request.method == 'POST':
         if request.method == 'GET':
           session['rowi_recibo']=rowi
@@ -370,7 +370,46 @@ def Reporte_retiros(rowi):
                 cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+        elif 'datefilter' in request.form:
+          if len(request.form['datefilter'])>0:
+            if 'valor_recibo' in session:
+              if len(session['valor_recibo'])>0:
+                daterangef=request.form['datefilter']
+                daterange=daterangef.replace("-", "' AND '")
+                session['datefilter_recibo']=daterange
+                cur = mysql.connection.cursor()
+                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
+                data = cur.fetchall()
+                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              else:
+                session.pop('filtro_recibo')
+                session.pop('valor_recibo')
+                cur = mysql.connection.cursor()
+                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+                data = cur.fetchall()
+                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+            else:
+              cur = mysql.connection.cursor()
+              cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
+              data = cur.fetchall()
+              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+          else:
+            if 'valor_recibo' in session:
+              session.pop('filtro_recibo')
+              session.pop('valor_recibo')
+              if 'datefilter_recibo' in session:
+                session.pop('datefilter_recibo')
+              cur = mysql.connection.cursor()
+              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+              data = cur.fetchall()
+              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+            else:
+              cur = mysql.connection.cursor()
+              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
+              data = cur.fetchall()
+              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
 
+          
         else:
           if 'valor_recibo' in session:
             if len(session['valor_recibo'])>0:
@@ -443,6 +482,7 @@ def Reporte_retiros(rowi):
                 cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
+        
       else: 
         if request.method == 'GET':
           session['rowi_recibo']=rowi
@@ -508,9 +548,9 @@ def Reporte_retiros(rowi):
             cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
             return render_template('reportes/t_retiros.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
-    return render_template('index.html')
+  # except:
+  #   flash("Inicia Secion")
+  #   return render_template('index.html')
 
 @app.route('/Reporte_donacion/<rowi>',methods=['POST','GET'])
 def Reporte_donacion(rowi):
@@ -1166,7 +1206,7 @@ def crear_ccsvingram():
 #Solicitudes
 @app.route('/Solicitudes_Retiros/<rowi>',methods=['POST','GET'])
 def solicitudes_retiros(rowi):
-  try:
+  # try:
       if request.method == 'POST':
         if request.method == 'GET':
           session['rowi_solicitudrecibo']=rowi
@@ -1219,6 +1259,9 @@ def solicitudes_retiros(rowi):
                     data = cur.fetchall()
                     return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
+                  daterangef=request.form['datefilter']
+                  daterange=daterangef.replace("-", "' AND '")
+                  session['datefilter_solicitudrecibo']=daterange
                   cur = mysql.connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
@@ -1241,7 +1284,7 @@ def solicitudes_retiros(rowi):
             else:
               if 'valor_solicitudrecibo' in session:
                 if 'datefilter_solicitudrecibo' in session:
-                    session.pop('datefilter_solicitudrecibo')
+                  session.pop('datefilter_solicitudrecibo')
                 session.pop('filtro_solicitudrecibo')
                 session.pop('valor_solicitudrecibo')
                 cur = mysql.connection.cursor()
@@ -1391,9 +1434,9 @@ def solicitudes_retiros(rowi):
             cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
             return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
-    return render_template('index.html')
+  # except:
+  #   flash("Inicia Secion")
+  #   return render_template('index.html')
 
 @app.route('/Solicitudes_donacion/<rowi>',methods=['POST','GET'])
 def solicitud_donacion(rowi):
@@ -2090,27 +2133,27 @@ def pdf_template(ubicacion):
 
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
-@app.route('CargarDatos',methods=['POST','GET'])
-def CargarDatos():
-  if request.method=='POST':
-    file= request.form['file']
-    base= request.form['base']
-    if base == 'inventario_seller':
-      i=0
-      for fil in file:
-        i += 1
-    elif base == 'solicitud_donacion':
-      i=0
-      for fil in file:
-        i += 1
-    elif base == 'solicitud_retiros':
-      i=0
-      for fil in file:
-        i += 1
-    elif base == 'ingram':
-      i=0
-      for fil in file:
-        i += 1
+# @app.route('CargarDatos',methods=['POST','GET'])
+# def CargarDatos():
+#   if request.method=='POST':
+#     file= request.form['file']
+#     base= request.form['base']
+#     if base == 'inventario_seller':
+#       i=0
+#       for fil in file:
+#         i += 1
+#     elif base == 'solicitud_donacion':
+#       i=0
+#       for fil in file:
+#         i += 1
+#     elif base == 'solicitud_retiros':
+#       i=0
+#       for fil in file:
+#         i += 1
+#     elif base == 'ingram':
+#       i=0
+#       for fil in file:
+#         i += 1
 
 
 if __name__=='__main__':
