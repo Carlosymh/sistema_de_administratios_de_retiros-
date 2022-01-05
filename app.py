@@ -141,7 +141,7 @@ def _create_password(password):
 # Registro de Salidas Service Center
 @app.route('/ubicacion',methods=['POST'])
 def registro_s_s():
-  try:
+  # try:
       if request.method == 'POST':
         meli = request.form['meli']
         cur = mysql.connection.cursor()
@@ -188,11 +188,10 @@ def registro_s_s():
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM solicitud_donacion WHERE SKU = \'{}\' AND status != \'Cerrado\' LIMIT 1 '.format(meli))
         donacion = cur.fetchall()
-        print(donacion)
         if len(donacion)>0:
           if int(donacion[0][3]) > int(donacion[0][7]): 
             numeroOla=donacion[0][1]
-            ubicacion =  'D-'+meli+'-'+str(donacion[0][11])
+            ubicacion =  'D-'+meli+'-'+str(donacion[0][10])
             now= datetime.now()
             responsable=session['FullName']
             cur = mysql.connection.cursor()
@@ -213,7 +212,7 @@ def registro_s_s():
               mysql.connection.commit()
               session['ubicacionretiro']=ubicacion
               return render_template('actualizacion/finalizado.html',Datos = session)
-            elif  piesas == int(retiros[0][4]):
+            elif  piesas == int(donacion[0][3]):
               status='Cerrado'
               cur = mysql.connection.cursor()
               cur.execute("""
@@ -272,9 +271,9 @@ def registro_s_s():
       else:
         flash("No has enviado un registro")
         return render_template('form/retiros.html',Datos = session)
-  except:
-    flash("Llena todos los Campos Correctamente")
-    return render_template('form/retiros.html',Datos = session)
+  # except:
+  #   flash("Llena todos los Campos Correctamente")
+  #   return render_template('form/retiros.html',Datos = session)
 
 #Cerrar Session
 @app.route('/logout')
@@ -2091,7 +2090,27 @@ def pdf_template(ubicacion):
 
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
-
+@app.route('CargarDatos',methods=['POST','GET'])
+def CargarDatos():
+  if request.method=='POST':
+    file= request.form['file']
+    base= request.form['base']
+    if base == 'inventario_seller':
+      i=0
+      for fil in file:
+        i += 1
+    elif base == 'solicitud_donacion':
+      i=0
+      for fil in file:
+        i += 1
+    elif base == 'solicitud_retiros':
+      i=0
+      for fil in file:
+        i += 1
+    elif base == 'ingram':
+      i=0
+      for fil in file:
+        i += 1
 
 
 if __name__=='__main__':
