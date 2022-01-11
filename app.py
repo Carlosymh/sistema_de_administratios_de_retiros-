@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import io
 import csv
 from fpdf import FPDF
-from flask_mysqldb import MySQL
+import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 import hashlib
@@ -11,12 +11,11 @@ import csv
 
 app = Flask(__name__)
 
-#MySQL Connection
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'retiros'
-mysql = MySQL(app)
+# CONNECTING WITH PYMYSQL: Open database connection
+db_connection = pymysql.connect(host='localhost', 
+                                user='root', 
+                                passwd='', 
+                                db='insumos') 
 
 # settings
 app.secret_key = 'mysecretkey'
@@ -38,12 +37,14 @@ def Index():
 def validarusuaro():
     if request.method == 'POST':
       usuario =  request.form['user']
-      cur = mysql.connection.cursor()
-      cur.execute('SELECT * FROM usuarios WHERE Usuario = \'{}\' LIMIT 1 '.format(usuario))
-      data = cur.fetchall()
+      cursor= db_connection.cursor()
+      # Read a single record
+      sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
+      cursor.execute(sql, (usuario,))
+      data = cursor.fetchone()
       if len(data) > 0 :
-        username = data[0][1]
-        user = data[0][3]
+        username = data[1]
+        user = data[3]
         return render_template('inicio.html',username=username,user=user)
       else:
         return render_template('index.html')    
@@ -54,17 +55,19 @@ def validarcontrasena(user):
     if request.method == 'POST':
       usuario =  user
       password = request.form['password']
-      cur = mysql.connection.cursor()
-      cur.execute('SELECT * FROM usuarios WHERE Usuario = \'{}\' LIMIT 1 '.format(usuario))
-      data = cur.fetchall()
+      cursor= db_connection.cursor()
+      # Read a single record
+      sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
+      cursor.execute(sql, (usuario,))
+      data = cursor.fetchone()
       if len(data) > 0 :
-          if check_password_hash(data[0][6],password):
-            session['UserName'] = data[0][1]
-            session['FullName'] = data[0][1] + data[0][2]
-            session['User'] = data[0][3]
-            session['FcName'] = data[0][4]
-            session['SiteName'] = data[0][5]
-            session['Rango'] = data[0][7]
+          if check_password_hash(data[6],password):
+            session['UserName'] = data[1]
+            session['FullName'] = data[1] + data[2]
+            session['User'] = data[3]
+            session['FcName'] = data[4]
+            session['SiteName'] = data[5]
+            session['Rango'] = data[7]
             return redirect('/home')
           else:
             flash('Contraseña Incorrecta')
@@ -117,17 +120,22 @@ def registrar():
         password2 = _create_password(request.form['pass2'])
         
         if check_password_hash(password,request.form['pass']) and check_password_hash(password,request.form['pass2']):
-          
-          cur = mysql.connection.cursor()
-          cur.execute('SELECT * FROM usuarios WHERE Usuario = \'{}\'  LIMIT 1 '.format(usuario,password))
-          data = cur.fetchall()
-          if len(data) > 0:
+          cursor= db_connection.cursor()
+          # Read a single record
+          sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
+          cursor.execute(sql, (usuario,))
+          data = cursor.fetchone()
+          if data != None:
             flash("El Usuario Ya Existe")
             return render_template('registro.html',Datos =session)
           else:
-            cur = mysql.connection.cursor()
-            cur.execute('INSERT INTO `usuarios` (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)',(nombre,apellido,usuario,ltrabajo,cdt,password,rango))
-            mysql.connection.commit()
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
             flash("Registro Correcto")
             return render_template('registro.html',Datos =session)
         else:
@@ -144,128 +152,105 @@ def registro_s_s():
   # try:
       if request.method == 'POST':
         meli = request.form['meli']
-        cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM solicitud_retiros WHERE meli = \'{}\' AND status != \'Cerrado\' LIMIT 1 '.format(meli))
-        retiros = cur.fetchall()
-        print(retiros)
-        if len(retiros)>0:
-          if int(retiros[0][4]) > int(retiros[0][7]): 
-            numeroOla=retiros[0][1]
-            ubicacion =  'R-'+meli+'-'+str(retiros[0][3])
+        cursor= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM solicitud_retiros WHERE meli = %s AND status != \'Cerrado\' LIMIT 1"
+        cursor.execute(sql, (meli,))
+        retiros = cursor.fetchone()
+        if retiros != None:
+          if int(retiros[4]) > int(retiros[7]): 
+            numeroOla=retiros[1]
+            ubicacion =  'R-'+meli+'-'+str(retiros[3])
             now= datetime.now()
             responsable=session['FullName']
-            cur = mysql.connection.cursor()
-            cur.execute('INSERT INTO retiros (nuemro_de_ola, meli, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)',(numeroOla,meli,1,ubicacion,responsable,now,now))
-            mysql.connection.commit() 
-            piesas= int(retiros[0][7])+1
-            idretiro =int(retiros[0][0])
-            if  piesas < int(retiros[0][4]):
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "INSERT INTO retiros (nuemro_de_ola, meli, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(numeroOla,meli,1,ubicacion,responsable,now,now,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            piesas= int(retiros[7])+1
+            idretiro =int(retiros[0])
+            if  piesas < int(retiros[4]):
               status='En Proceso'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE solicitud_retiros 
-              SET cantidad_susrtida = %s, 
-              status = %s, 
-              ubicacion = %s 
-              WHERE id_tarea_retiros = %s""",
-              (piesas,status,ubicacion,idretiro))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-            elif  piesas == int(retiros[0][4]):
+            elif  piesas == int(retiros[4]):
               status='Cerrado'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE solicitud_retiros 
-              SET cantidad_susrtida = %s, 
-              status = %s, 
-              ubicacion = %s 
-              WHERE id_tarea_retiros = %s """,
-              (piesas,status,ubicacion,idretiro))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-        cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM solicitud_donacion WHERE SKU = \'{}\' AND status != \'Cerrado\' LIMIT 1 '.format(meli))
-        donacion = cur.fetchall()
-        if len(donacion)>0:
-          if int(donacion[0][3]) > int(donacion[0][7]): 
-            numeroOla=donacion[0][1]
-            ubicacion =  'D-'+meli+'-'+str(donacion[0][10])
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "UPDATE solicitud_retiros SET cantidad_susrtida = %s, status = %s, ubicacion = %s WHERE id_tarea_retiros = %s"
+            cursor.execute(sql,(piesas,status,ubicacion,idretiro,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            session['ubicacionretiro']=ubicacion
+            return render_template('actualizacion/finalizado.html',Datos = session)
+        cursor= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM solicitud_donacion WHERE SKU = %s AND status != \'Cerrado\' LIMIT 1 "
+        cursor.execute(sql, (meli,))
+        donacion = cursor.fetchone()
+        if donacion != None:
+          if int(donacion[3]) > int(donacion[7]): 
+            numeroOla=donacion[1]
+            ubicacion =  'D-'+meli+'-'+str(donacion[10])
             now= datetime.now()
             responsable=session['FullName']
-            cur = mysql.connection.cursor()
-            cur.execute('INSERT INTO donacion (nuemro_de_ola, SKU, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)',(numeroOla,meli,1,ubicacion,responsable,now,now))
-            mysql.connection.commit() 
-            piesas= int(donacion[0][7])+1
-            iddonacion =int(donacion[0][0])
-            if  piesas < int(donacion[0][3]):
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "INSERT INTO donacion (nuemro_de_ola, SKU, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(numeroOla,meli,1,ubicacion,responsable,now,now,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            piesas= int(donacion[7])+1
+            iddonacion =int(donacion[0])
+            if  piesas < int(donacion[3]):
               status='En Proceso'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE solicitud_donacion 
-              SET cantidad_susrtida = %s, 
-              status = %s, 
-              ubicacion = %s 
-              WHERE id_donacion = %s""",
-              (piesas,status,ubicacion,iddonacion))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-            elif  piesas == int(donacion[0][3]):
+            elif  piesas == int(donacion[3]):
               status='Cerrado'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE solicitud_donacion 
-              SET cantidad_susrtida = %s, 
-              status = %s, 
-              ubicacion  = %s 
-              WHERE id_donacion = %s """,
-              (piesas,status,ubicacion,iddonacion))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-        cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM ingram WHERE SKU = \'{}\' AND estatus != \'Cerrado\' LIMIT 1 '.format(meli))
-        ingram = cur.fetchall()
-        if len(ingram)>0:
-          if int(ingram[0][3]) > int(ingram[0][5]): 
-            numeroOla=ingram[0][1]
-            ubicacion =  'I-'+meli+'-'+str(ingram[0][9])
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "UPDATE solicitud_donacion SET cantidad_susrtida = %s, status = %s, ubicacion = %s WHERE id_donacion = %s"
+            cursor.execute(sql,(piesas,status,ubicacion,iddonacion,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            session['ubicacionretiro']=ubicacion
+            return render_template('actualizacion/finalizado.html',Datos = session)
+        cursor= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM ingram WHERE SKU = %s AND estatus != \'Cerrado\' LIMIT 1 "
+        cursor.execute(sql, (meli,))
+        ingram = cursor.fetchone()
+        if ingram != None:
+          if int(ingram[3]) > int(ingram[5]): 
+            numeroOla=ingram[1]
+            ubicacion =  'I-'+meli+'-'+str(ingram[9])
             now= datetime.now() 
             responsable=session['FullName']
-            cur = mysql.connection.cursor()
-            cur.execute('INSERT INTO retirio_ingram (nuemro_de_ola, SKU, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)',(numeroOla,meli,1,ubicacion,responsable,now,now))
-            mysql.connection.commit() 
-            piesas= int(ingram[0][5])+1
-            idingram =int(ingram[0][0])
-            if  piesas < int(ingram[0][3]):
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "INSERT INTO retirio_ingram (nuemro_de_ola, SKU, cantidad, ubicacion, responsable, fecha, fecha_hora) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(numeroOla,meli,1,ubicacion,responsable,now,now,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            piesas= int(ingram[5])+1
+            idingram =int(ingram[0])
+            if  piesas < int(ingram[3]):
               status='En Proceso'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE ingram 
-              SET piezas_surtidas = %s, 
-              estatus = %s, 
-              ubicacion = %s 
-              WHERE id_solicitud  = %s""",
-              (piesas,status,ubicacion,idingram))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-            elif  piesas == int(ingram[0][4]):
+            elif  piesas == int(ingram[4]):
               status='Cerrado'
-              cur = mysql.connection.cursor()
-              cur.execute("""
-              UPDATE ingram 
-              SET piezas_surtidas = %s, 
-              estatus = %s, 
-              ubicacion = %s 
-              WHERE id_solicitud  = %s """,
-              (piesas,status,ubicacion,idingram))
-              mysql.connection.commit()
-              session['ubicacionretiro']=ubicacion
-              return render_template('actualizacion/finalizado.html',Datos = session)
-        else:
+            cursor= db_connection.cursor()
+            # Create a new record
+            sql = "UPDATE ingram SET piezas_surtidas = %s, estatus = %s, ubicacion = %s WHERE id_solicitud  = %s"
+            cursor.execute(sql,(piesas,status,ubicacion,idingram,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            session['ubicacionretiro']=ubicacion
+            return render_template('actualizacion/finalizado.html',Datos = session)
           flash("No hay Tareas Pendientes")
           return render_template('form/retiros.html',Datos = session)
       else:
@@ -301,20 +286,26 @@ def Reporte_retiros(rowi):
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
                 session['datefilter_recibo']=daterange
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_recibo')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -324,21 +315,27 @@ def Reporte_retiros(rowi):
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
                     session['datefilter_recibo']=daterange
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_recibo')
                     session.pop('valor_recibo')
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 if 'valor_recibo' in session:
@@ -346,30 +343,31 @@ def Reporte_retiros(rowi):
                   session.pop('valor_recibo')
                   if 'datefilter_recibo' in session:
                     session.pop('datefilter_recibo')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               if 'valor_recibo' in session:
-                if 'datefilter_recibo' in session:
-                    session.pop('datefilter_recibo')
                 session.pop('filtro_recibo')
                 session.pop('valor_recibo')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
-              else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
+              if 'datefilter_recibo' in session:
+                session.pop('datefilter_recibo')
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
+              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         elif 'datefilter' in request.form:
           if len(request.form['datefilter'])>0:
             if 'valor_recibo' in session:
@@ -377,90 +375,107 @@ def Reporte_retiros(rowi):
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
                 session['datefilter_recibo']=daterange
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('filtro_recibo')
                 session.pop('valor_recibo')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'valor_recibo' in session:
               session.pop('filtro_recibo')
               session.pop('valor_recibo')
-              if 'datefilter_recibo' in session:
+            if 'datefilter_recibo' in session:
                 session.pop('datefilter_recibo')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
-            else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
-              return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
-
-          
+            cursor= db_connection.cursor()
+            # Read a single record
+            sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         else:
           if 'valor_recibo' in session:
             if len(session['valor_recibo'])>0:
               if 'datefilter_recibo' in session:
                 if len(session['datefilter_recibo'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_recibo')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_recibo')
               session.pop('valor_recibo')
               if 'datefilter_recibo' in session:
                 if len(session['datefilter_recibo'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter_recibo' in session:
               if len(session['datefilter_recibo'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -468,19 +483,25 @@ def Reporte_retiros(rowi):
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
                   session['datefilter_recibo']=daterange
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
         
       else: 
@@ -495,58 +516,76 @@ def Reporte_retiros(rowi):
           if len(session['valor_recibo'])>0:
             if 'datefilter_recibo' in session:
               if len(session['datefilter_recibo'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_recibo')
             session.pop('valor_recibo')
             if 'datefilter_recibo' in session:
               if len(session['datefilter_recibo'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         else:
           if 'datefilter_recibo' in session:
             if len(session['datefilter_recibo'])>0:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_recibo')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
-            cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
-            data = cur.fetchall()
+            cursor= db_connection.cursor()
+            # Read a single record
+            sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
+            cursor.execute(sql)
+            data = cursor.fetchall()
             return render_template('reportes/t_retiros.html',Datos = session,Infos =data)         
   # except:
   #   flash("Inicia Secion")
@@ -572,20 +611,26 @@ def Reporte_donacion(rowi):
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
                 session['datefilter_donacion']=daterange
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -595,98 +640,111 @@ def Reporte_donacion(rowi):
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
                     session['datefilter_donacion']=daterange
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_donacion')
                     session.pop('valor_donacion')
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 if 'valor_donacion' in session:
                   session.pop('filtro_donacion')
                   session.pop('valor_donacion')
-                  if 'datefilter_donacion' in session:
-                    session.pop('datefilter_donacion')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
-                  return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
-                else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
-                  return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
+                if 'datefilter_donacion' in session:
+                  session.pop('datefilter_donacion')
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
             else:
               if 'valor_donacion' in session:
-                if 'datefilter_donacion' in session:
-                    session.pop('datefilter_donacion')
                 session.pop('filtro_donacion')
                 session.pop('valor_donacion')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
-              else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
+              if 'datefilter_donacion' in session:
+                  session.pop('datefilter_donacion')
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
+              return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
 
         else:
           if 'valor_donacion' in session:
             if len(session['valor_donacion'])>0:
               if 'datefilter_donacion' in session:
                 if len(session['datefilter_donacion'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_donacion')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_donacion')
               session.pop('valor_donacion')
               if 'datefilter_donacion' in session:
                 if len(session['datefilter_donacion'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter_donacion' in session:
               if len(session['datefilter_donacion'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
@@ -700,19 +758,25 @@ def Reporte_donacion(rowi):
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
                   session['datefilter_donacion']=daterange
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -726,58 +790,76 @@ def Reporte_donacion(rowi):
           if len(session['valor_donacion'])>0:
             if 'datefilter_donacion' in session:
               if len(session['datefilter_donacion'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_donacion')
             session.pop('valor_donacion')
             if 'datefilter_donacion' in session:
               if len(session['datefilter_donacion'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
         else:
           if 'datefilter_donacion' in session:
             if len(session['datefilter_recibo'])>0:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_donacion')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
-            cur = mysql.connection.cursor()
-            cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
-            data = cur.fetchall()
+            cursor= db_connection.cursor()
+            # Read a single record
+            sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
+            cursor.execute(sql)
+            data = cursor.fetchall()
             return render_template('reportes/t_donacion.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
@@ -803,20 +885,26 @@ def Reporte_ingram(rowi):
                 daterangef=request.form['datefilter']
                 daterange=daterangef.replace("-", "' AND '")
                 session['datefilter_ingram']=daterange
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_ingram')
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -826,104 +914,117 @@ def Reporte_ingram(rowi):
                     daterangef=request.form['datefilter']
                     daterange=daterangef.replace("-", "' AND '")
                     session['datefilter_ingram']=daterange
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_ingram')
                     session.pop('valor_ingram')
-                    cur = mysql.connection.cursor()
-                    cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                    data = cur.fetchall()
+                    cursor= db_connection.cursor()
+                    # Read a single record
+                    sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                    cursor.execute(sql)
+                    data = cursor.fetchall()
                     return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 if 'valor_ingram' in session:
                   session.pop('filtro_ingram')
                   session.pop('valor_ingram')
-                  if 'datefilter_ingram' in session:
-                    session.pop('datefilter_ingram')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
-                  return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
-                else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
-                  return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
+                if 'datefilter_ingram' in session:
+                  session.pop('datefilter_ingram')
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
             else:
               if 'valor_ingram' in session:
-                if 'datefilter_ingram' in session:
-                    session.pop('datefilter_ingram')
                 session.pop('filtro_ingram')
                 session.pop('valor_ingram')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
-              else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
-                return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
-
+              if 'datefilter_ingram' in session:
+                session.pop('datefilter_ingram')
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
         else:
           if 'valor_ingram' in session:
             if len(session['valor_ingram'])>0:
               if 'datefilter_ingram' in session:
                 if len(session['datefilter_ingram'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_ingram')
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_ingram')
               session.pop('valor_ingram')
               if 'datefilter_ingram' in session:
                 if len(session['datefilter_ingram'])>0:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter_ingram' in session:
               if len(session['datefilter_ingram'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -931,19 +1032,25 @@ def Reporte_ingram(rowi):
                   daterangef=request.form['datefilter']
                   daterange=daterangef.replace("-", "' AND '")
                   session['datefilter_ingram']=daterange
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
-                  cur = mysql.connection.cursor()
-                  cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
-                  data = cur.fetchall()
+                  cursor= db_connection.cursor()
+                  # Read a single record
+                  sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
+                  cursor.execute(sql)
+                  data = cursor.fetchall()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
               else:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -957,29 +1064,37 @@ def Reporte_ingram(rowi):
           if len(session['valor_ingram'])>0:
             if 'datefilter_ingram' in session:
               if len(session['datefilter_ingram'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
-              cur = mysql.connection.cursor()
-              cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
-              data = cur.fetchall()
+              cursor= db_connection.cursor()
+              # Read a single record
+              sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
+              cursor.execute(sql)
+              data = cursor.fetchall()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_ingram')
             session.pop('valor_ingram')
             if 'datefilter_ingram' in session:
               if len(session['datefilter_ingram'])>0:
-                cur = mysql.connection.cursor()
-                cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
-                data = cur.fetchall()
+                cursor= db_connection.cursor()
+                # Read a single record
+                sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
+                cursor.execute(sql)
+                data = cursor.fetchall()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
