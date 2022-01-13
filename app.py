@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response, Response, jsonify
 import io
 import csv
+import pandas as pd 
+import os
+from os.path import join, dirname, realpath
 from fpdf import FPDF
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +23,8 @@ db_connection = pymysql.connect(host='localhost',
 # settings
 app.secret_key = 'mysecretkey'
 
+UPLOAD_FOLDER = 'static/files'
+app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
 
 #Direccion Principal 
 @app.route('/')
@@ -2251,27 +2256,63 @@ def pdf_template(ubicacion):
 
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
-# @app.route('CargarDatos',methods=['POST','GET'])
-# def CargarDatos():
-#   if request.method=='POST':
-#     file= request.form['file']
-#     base= request.form['base']
-#     if base == 'inventario_seller':
-#       i=0
-#       for fil in file:
-#         i += 1
-#     elif base == 'solicitud_donacion':
-#       i=0
-#       for fil in file:
-#         i += 1
-#     elif base == 'solicitud_retiros':
-#       i=0
-#       for fil in file:
-#         i += 1
-#     elif base == 'ingram':
-#       i=0
-#       for fil in file:
-#         i += 1
+# @app.route('/files',methods=['POST','GET'])
+# def Files_():
+#   if 'FullName' in session:
+#     return render_template('form/files.html',Datos=session)
+#   else:
+#     return render_template('home.html',Datos=session)
+
+# @app.route('/CargarDatos',methods=['POST','GET'])
+# def uploadFiles():
+#       # get the uploaded file
+#       uploaded_file = request.files['datos']
+#       if uploaded_file.filename != '':
+#            file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+#            # set the file path
+#            uploaded_file.save(file_path)
+#            parseCSV(file_path)
+#            #save the file
+#            uploaded_file.save(file_path)
+#            print(file_path)
+
+# def parseCSV(filePath):
+#       # CVS Column Names
+#       col_names = ['first_name','last_name','address', 'street', 'state' , 'zip']
+#       # Use Pandas to parse the CSV file
+#       csvData = pd.read_csv(filePath,names=col_names, header=None)
+#       # Loop through the Rows
+#       for i,row in csvData.iterrows():
+#              sql = "INSERT INTO addresses (first_name, last_name, address, street, state, zip) VALUES (%s, %s, %s, %s, %s, %s)"
+#              value = (row['first_name'],row['last_name'],row['address'],row['street'],row['state'],str(row['zip']))
+#              mycursor.execute(sql, value, if_exists='append')
+#              mydb.commit()
+#              print(i,row['first_name'],row['last_name'],row['address'],row['street'],row['state'],row['zip'])
+
+          # save the file
+    # if base == 'Donacion':
+            # cur= db_connection.cursor()
+            # # Create a new record
+            # sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            # cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
+            # # connection is not autocommit by default. So you must commit to save
+            # # your changes.
+            # db_connection.commit()
+      # i=0
+      # for fil in file:
+      #   i += 1
+    # elif base == 'solicitud_donacion':
+    #   i=0
+    #   for fil in file:
+    #     i += 1
+    # elif base == 'solicitud_retiros':
+    #   i=0
+    #   for fil in file:
+    #     i += 1
+    # elif base == 'ingram':
+    #   i=0
+    #   for fil in file:
+    #     i += 1
 
 
 if __name__=='__main__':

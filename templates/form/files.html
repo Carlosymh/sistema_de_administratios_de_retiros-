@@ -30,16 +30,16 @@
     {% block body%}
         <div class="fondo"></div>
         <section>
-            <form action="/CargarDatos " method="POST" >
+            <form action="/CargarDatos " method="POST" enctype="multipart/form-data" >
                 <h2> Retiro</h2>
-                    <label for="file">Archivo:</label>
+                    <label for="datos">Archivo:</label>
                     <input type="file" name="datos" >
                     <label for="base">Base de Datos </label>
                     <select name="base" id="basebd">
-                        <option value="solicitud_donacion">Donacion</option>
-                        <option value="solicitud_retiros">Retiros</option>
-                        <option value="ingram">Ingram</option>
-                        <option value="inventario_seller">Inventario Seller</option>
+                        <option value="Donacion">Donacion</option>
+                        <option value="Retiros">Retiros</option>
+                        <option value="Ingram">Ingram</option>
+                        <option value="Inventario Seller">Inventario Seller</option>
                     </select>
                 <input type="submit" class="btn" name="enviar" value="enviar" >
             </form>
