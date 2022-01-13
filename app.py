@@ -2256,25 +2256,27 @@ def pdf_template(ubicacion):
 
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
-# @app.route('/files',methods=['POST','GET'])
-# def Files_():
-#   if 'FullName' in session:
-#     return render_template('form/files.html',Datos=session)
-#   else:
-#     return render_template('home.html',Datos=session)
+@app.route('/files',methods=['POST','GET'])
+def Files_():
+  if 'FullName' in session:
+    return render_template('form/files.html',Datos=session)
+  else:
+    return render_template('home.html',Datos=session)
 
-# @app.route('/CargarDatos',methods=['POST','GET'])
-# def uploadFiles():
-#       # get the uploaded file
-#       uploaded_file = request.files['datos']
-#       if uploaded_file.filename != '':
-#            file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-#            # set the file path
-#            uploaded_file.save(file_path)
-#            parseCSV(file_path)
-#            #save the file
-#            uploaded_file.save(file_path)
-#            print(file_path)
+@app.route('/CargarDatos',methods=['POST','GET'])
+def uploadFiles():
+      # get the uploaded file
+      file = request.files['datos']
+      flash(file.filename)
+      return render_template('form/files.html',Datos=session)
+      # if uploaded_file.filename != '':
+      #      file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+      #      # set the file path
+      #      uploaded_file.save(file_path)
+      #      parseCSV(file_path)
+      #      #save the file
+      #      uploaded_file.save(file_path)
+      #      print(file_path)
 
 # def parseCSV(filePath):
 #       # CVS Column Names
