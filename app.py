@@ -18,7 +18,7 @@ app = Flask(__name__)
 db_connection = pymysql.connect(host='localhost', 
                                 user='root', 
                                 passwd='', 
-                                db='retiros') 
+                                db='retiros_2') 
 
 # settings
 app.secret_key = 'mysecretkey'
@@ -256,8 +256,8 @@ def registro_s_s():
             db_connection.commit()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
-          flash("No hay Tareas Pendientes")
-          return render_template('form/retiros.html',Datos = session)
+        flash("No hay Tareas Pendientes")
+        return render_template('form/retiros.html',Datos = session)
       else:
         flash("No has enviado un registro")
         return render_template('form/retiros.html',Datos = session)
@@ -336,6 +336,9 @@ def Reporte_retiros(rowi):
                     data = cur.fetchall()
                     return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
+                  daterangef=request.form['datefilter']
+                  daterange=daterangef.replace("-", "' AND '")
+                  session['datefilter_recibo']=daterange
                   cur= db_connection.cursor()
                   # Read a single record
                   sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
@@ -661,6 +664,9 @@ def Reporte_donacion(rowi):
                     data = cur.fetchall()
                     return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
+                  daterangef=request.form['datefilter']
+                  daterange=daterangef.replace("-", "' AND '")
+                  session['datefilter_donacion']=daterange
                   cur= db_connection.cursor()
                   # Read a single record
                   sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
@@ -1192,16 +1198,16 @@ def crear_csvretiros():
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+";"+"Ola"+";"+"Meli"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+"\n"
+    datos="Id"+","+"Ola"+","+"Meli"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+"\n"
     for res in data:
       datos+=str(res[0])
-      datos+=";"+str(res[1]).replace(","," ")
-      datos+=";"+str(res[2]).replace(","," ")
-      datos+=";"+str(res[3]).replace(","," ")
-      datos+=";"+str(res[4]).replace(","," ")
-      datos+=";"+str(res[5]).replace(","," ")
-      datos+=";"+str(res[6]).replace(","," ")
-      datos+=";"+str(res[7]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1256,16 +1262,16 @@ def crear_csvdonacion():
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+";"+"Ola"+";"+"SKU"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+";"+"\n"
+    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
-      datos+=";"+str(res[1]).replace(","," ")
-      datos+=";"+str(res[2]).replace(","," ")
-      datos+=";"+str(res[3]).replace(","," ")
-      datos+=";"+str(res[4]).replace(","," ")
-      datos+=";"+str(res[5]).replace(","," ")
-      datos+=";"+str(res[6]).replace(","," ")
-      datos+=";"+str(res[7]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -1320,16 +1326,16 @@ def crear_ccsvingram():
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+";"+"Ola"+";"+"SKU"+";"+"Cantidad"+";"+"Ubicacion"+";"+"Responsable"+";"+"Fecha"+";"+"Fecha y Hora"+";"+"\n"
+    datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
-      datos+=";"+str(res[1]).replace(","," ")
-      datos+=";"+str(res[2]).replace(","," ")
-      datos+=";"+str(res[3]).replace(","," ")
-      datos+=";"+str(res[4]).replace(","," ")
-      datos+=";"+str(res[5]).replace(","," ")
-      datos+=";"+str(res[6]).replace(","," ")
-      datos+=";"+str(res[7]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -2069,19 +2075,19 @@ def crear_csvsolicitudretiros():
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
-    datos="Id"+";"+"Ola"+";"+"Meli"+";"+"Fecha de Entrega"+";"+"Cantidad Solicitada"+";"+"QTY_DISP_WMS"+";"+"Descripción"+";"+"cantidad_susrtida"+";"+"Estatus"+";"+"Ubicacion"+";"+"Fecha de creacion"+"\n"
+    datos="Id"+","+"Ola"+","+"Meli"+","+"Fecha de Entrega"+","+"Cantidad Solicitada"+","+"QTY_DISP_WMS"+","+"Descripción"+","+"cantidad_susrtida"+","+"Estatus"+","+"Ubicacion"+","+"Fecha de creacion"+"\n"
     for res in data:
       datos+=str(res[0])
-      datos+=";"+str(res[1]).replace(","," ")
-      datos+=";"+str(res[2]).replace(","," ")
-      datos+=";"+str(res[3]).replace(","," ")
-      datos+=";"+str(res[4]).replace(","," ")
-      datos+=";"+str(res[5]).replace(","," ")
-      datos+=";"+str(res[6]).replace(","," ")
-      datos+=";"+str(res[7]).replace(","," ")
-      datos+=";"+str(res[8]).replace(","," ")
-      datos+=";"+str(res[9]).replace(","," ")
-      datos+=";"+str(res[10]).replace(","," ")
+      datos+=","+str(res[1]).replace(","," ")
+      datos+=","+str(res[2]).replace(","," ")
+      datos+=","+str(res[3]).replace(","," ")
+      datos+=","+str(res[4]).replace(","," ")
+      datos+=","+str(res[5]).replace(","," ")
+      datos+=","+str(res[6]).replace(","," ")
+      datos+=","+str(res[7]).replace(","," ")
+      datos+=","+str(res[8]).replace(","," ")
+      datos+=","+str(res[9]).replace(","," ")
+      datos+=","+str(res[10]).replace(","," ")
       datos+="\n"
 
     response = make_response(datos)
@@ -2266,32 +2272,16 @@ def Files_():
 @app.route('/CargarDatos',methods=['POST','GET'])
 def uploadFiles():
       # get the uploaded file
-      file = request.files['datos']
-      flash(file.filename)
+      f =request.files['datos']
+      flash(f.filename)
+      data=[]
+      with open(f) as file:
+        csvfile =csv.reader(file)
+        for row in csvfile:
+          data.append(row)
+
+      print(data)
       return render_template('form/files.html',Datos=session)
-      # if uploaded_file.filename != '':
-      #      file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-      #      # set the file path
-      #      uploaded_file.save(file_path)
-      #      parseCSV(file_path)
-      #      #save the file
-      #      uploaded_file.save(file_path)
-      #      print(file_path)
-
-# def parseCSV(filePath):
-#       # CVS Column Names
-#       col_names = ['first_name','last_name','address', 'street', 'state' , 'zip']
-#       # Use Pandas to parse the CSV file
-#       csvData = pd.read_csv(filePath,names=col_names, header=None)
-#       # Loop through the Rows
-#       for i,row in csvData.iterrows():
-#              sql = "INSERT INTO addresses (first_name, last_name, address, street, state, zip) VALUES (%s, %s, %s, %s, %s, %s)"
-#              value = (row['first_name'],row['last_name'],row['address'],row['street'],row['state'],str(row['zip']))
-#              mycursor.execute(sql, value, if_exists='append')
-#              mydb.commit()
-#              print(i,row['first_name'],row['last_name'],row['address'],row['street'],row['state'],row['zip'])
-
-          # save the file
     # if base == 'Donacion':
             # cur= db_connection.cursor()
             # # Create a new record
@@ -2318,4 +2308,4 @@ def uploadFiles():
 
 
 if __name__=='__main__':
-    app.run(port = 3000, debug =True)
+    app.run(port = 5000, debug =True)
