@@ -167,36 +167,3 @@ a.linkedin:hover{
 .user_content  a:hover{
     background: #eee;
 }
-/* @media (max-width: 1800px ){
-    section img{
-        width: 120px;
-        height: 80px;
-        margin-top: 3rem;
-        right: 1vh;
-    }
-    section h1{
-        text-align: left;
-        width: 70%;
-        font-size: 60px;
-        margin-top: 8vh;
-        margin-left: 1vh;
-        font-family: 'Harabara',Verdana;
-    }
-    }
-@media (max-width: 505px ){
-section img{
-    width: 120px;
-    height: 80px;
-    margin-top: 3rem;
-    margin-left: 2vh;
-    right: 1vh;
-}
-section .titulo p{
-    text-align: left;
-    width: 90%;
-    font-size: 4vh;
-    margin-top: 8vh;
-    margin-left: 1vh;
-    font-family: 'Harabara',Verdana;
-}
-} */

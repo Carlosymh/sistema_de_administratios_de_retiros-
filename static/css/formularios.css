@@ -66,25 +66,6 @@ section form input.btn:hover{
         color:#fff;
 }
 
-.before,
-.after,
-.Pag{
-    background: #2f3476;
-    color: #fff;
-}
-.before{
-    font-size: 3vh;
-    margin-left: 3vh;
-}
-.after{
-    font-size: 3vh;
-    margin-right: 3vh;
-}
-.after:hover,
-.before:hover{
-    color: #ccc;
-}
-
 .pdf{
     width: 600px;
     height: 300px;

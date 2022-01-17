@@ -8,7 +8,7 @@ body{
 }
  div.filtros{
     background: #eee;
-    padding: 1vh 0;
+    padding: 10px 0;
     border:none;
     border-collapse: collapse;
     display: flex;
@@ -19,7 +19,7 @@ body{
     margin-left: 2vh;
     border:none;
     background-color: #fff;
-    padding: 0.5VH ;
+    padding: 5px ;
     border: 1px solid #2f3476;
     border-radius: 15px;
 }
@@ -28,7 +28,8 @@ body{
     box-decoration-break: None;
     background: none;
     border: none;
-    font-size: 2vh;
+    font-size: 10px;
+    text-align: center;
 }
 
 .filtros form select:focus,
@@ -45,7 +46,7 @@ body{
 .Aviso{
     margin:0 auto auto auto;
     width: 100%;
-    font-size: 5vh;
+    font-size: 25px;
     text-align: center;
     background: #2f3476;
     color: #fff;
@@ -53,9 +54,9 @@ body{
 }
 
 table{
-    width: 99%;
+    width: 95%;
     background: #fff;
-    margin:1vh auto;
+    margin:10px auto;
     justify-content: space-between;
     text-align: center;
     border-collapse: collapse;
@@ -75,7 +76,7 @@ table tbody tr{
 table tbody tr td{
     padding: 10px 2px;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1.85vh;
+    font-size: 10px;
 }
 table tbody tr td .edit{
 
@@ -145,4 +146,7 @@ table tbody tr td .delete{
     padding: 4PX ;
     color: #fff;
     border-radius: 50%;
+}
+.download_csv i:hover{
+    background: #787879;
 }

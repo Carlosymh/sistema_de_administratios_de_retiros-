@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response, Response, jsonify
 import io
 import csv
-import pandas as pd 
 import json
 import os
 from os.path import join, dirname, realpath
@@ -2233,7 +2232,7 @@ def pdf_template(ubicacion):
   
         qr =  ubicacion
         img =qrcode.make(qr)
-        file =open('qr.png','wb')
+        file =open('static/img/qr.png','wb')
         img.save(file)
         lugar = 'De: '+session['FcName']+' | '+session['SiteName']
         facility = session['FcName']
@@ -2252,7 +2251,7 @@ def pdf_template(ubicacion):
         pdf.text(x = 35, y = 15 ,txt =  "Withdrawal System" )
         pdf.ln(80)
         
-        pdf.image('qr.png', x= 10, y = 20, w=40, h = 40)
+        pdf.image('static/img/qr.png', x= 10, y = 20, w=40, h = 40)
 
         pdf.set_font('Times','B',12) 
         
@@ -2272,16 +2271,16 @@ def Files_():
 
 @app.route('/CargarDatos',methods=['POST','GET'])
 def uploadFiles():
-  try:
+  # try:
     if 'FullName' in session:
       # get the uploaded file
       file =request.files['datos']
       base = request.form['base']
       
       if base == 'Donacion':
-        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
-        # data = csv.reader(open('static/file/retiroscsv.csv'))
-        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+        file.save(os.path.join(UPLOAD_FOLDER, "donacioncsv.csv"))
+        # data = csv.reader(open('static/file/donacioncsv.csv))
+        with open('static/file/donacioncsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -2319,9 +2318,9 @@ def uploadFiles():
         flash(str(i)+' Registros Exitoso')
         return redirect('/files')
       elif base == 'Ingram':
-        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
-        # data = csv.reader(open('static/file/retiroscsv.csv'))
-        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+        file.save(os.path.join(UPLOAD_FOLDER, "ingramcsv.csv"))
+        # data = csv.reader(open('static/file/ingramcsv.csv'))
+        with open('static/file/ingramcsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -2339,9 +2338,9 @@ def uploadFiles():
         flash(str(i)+' Registros Exitoso')
         return redirect('/files')
       elif base == 'Inventario Seller':
-        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
-        # data = csv.reader(open('static/file/retiroscsv.csv'))
-        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+        file.save(os.path.join(UPLOAD_FOLDER, "inventariosellercsv.csv"))
+        # data = csv.reader(open('static/file/inventariosellercsv.csv'))
+        with open('static/file/inventariosellercsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -2349,8 +2348,8 @@ def uploadFiles():
               now= datetime.now()
               cur= db_connection.cursor()
               # Create a new record
-              sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[5],now,session['FcName'],session['SiteName'],))
+              sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+              cur.execute(sql,(row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -2360,9 +2359,9 @@ def uploadFiles():
         return redirect('/files')
     else:
       return redirect('/')
-  except:
-    flash('Ocurrió un error, Por favor Revisa bien los datos y vuelve a intentarlo.')
-    return redirect('/files')
+  # except:
+  #   flash('Ocurrió un error, Por favor Revisa bien los datos y vuelve a intentarlo.')
+  #   return redirect('/files')
 
 @app.route('/dashboard',methods=['POST','GET'])
 def dash():
@@ -2371,26 +2370,62 @@ def dash():
       daterangef=request.form['datefilter']
       daterange=daterangef.replace("-", "' AND '")
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
       retiropendientes = cur.fetchone()
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       retiroenproceso = cur.fetchone()
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       retirocerrado = cur.fetchone()
-      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado)
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Pendiente\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
+      donacionpendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'En Proceso\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
+      donacionenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Cerrado\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
+      donacionocerrado = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Pendiente\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
+      ingrampendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'En Proceso\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
+      ingramenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Cerrado\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
+      ingramcerrado = cur.fetchone()
+      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
     else:
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  LIMIT 1')
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       retiropendientes = cur.fetchone()
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) LIMIT 1')
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       retiroenproceso = cur.fetchone()
       cur= db_connection.cursor()
-      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  LIMIT 1')
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       retirocerrado = cur.fetchone()
-      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado)
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Pendiente\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
+      donacionpendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'En Proceso\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
+      donacionenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Cerrado\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
+      donacionocerrado = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Pendiente\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
+      ingrampendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'En Proceso\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
+      ingramenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Cerrado\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
+      ingramcerrado = cur.fetchone()
+      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
   # except:
   #   return redirect('/')
 

@@ -12,7 +12,7 @@ body{
     background: #eee;
 }
 .user{
-    padding: 6vh 0 0 0;
+    padding: 20px 0 0 0;
     width: 100%;
     justify-content: center;
     text-align: center;
@@ -21,23 +21,23 @@ body{
 }
 .user i{
     background: #fff159;
-    padding: 3vh;
+    padding: 20px;
     color: #2f3476;
     margin: auto;
-    font-size: 4vh;
+    font-size: 40px;
     border-radius: 50%;
 }
 .user h1{
     color: #2f314e;
     margin: auto;
-    font-size: 5vh;
+    font-size: 30px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 
 }
 .user h3{
     color: #2f314e;
     margin: auto;
-    font-size: 3vh;
+    font-size: 20px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 } .container_form{
     width: 50%;
