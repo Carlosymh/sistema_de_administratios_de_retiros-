@@ -79,6 +79,7 @@ def validarcontrasena(user):
             return render_template('index.html')
       else:
         return render_template('index.html')   
+
 #Pagina Principal
 @app.route('/home',methods=['POST','GET'])
 def home():
@@ -96,6 +97,7 @@ def No_procesable_form():
   else:
     flash("Inicia Sesion")
     return render_template('index.html')
+
 #Redirigie a el Formulario de Registro de Usuarios 
 @app.route('/registro',methods=['POST','GET'])
 def registro():
@@ -270,6 +272,7 @@ def registro_s_s():
 def Cerrar_session():
   session.clear()
   return render_template('index.html')
+
 #Reportes
 @app.route('/Reporte_Retiros/<rowi>',methods=['POST','GET'])
 def Reporte_retiros(rowi):
@@ -599,6 +602,7 @@ def Reporte_retiros(rowi):
   #   flash("Inicia Secion")
   #   return render_template('index.html')
 
+
 @app.route('/Reporte_donacion/<rowi>',methods=['POST','GET'])
 def Reporte_donacion(rowi):
   try:
@@ -876,6 +880,7 @@ def Reporte_donacion(rowi):
     flash("Inicia Secion")
     return render_template('index.html')
 
+
 @app.route('/Reporte_Ingram/<rowi>',methods=['POST','GET'])
 def Reporte_ingram(rowi):
   try:
@@ -1150,6 +1155,7 @@ def Reporte_ingram(rowi):
     flash("Inicia Secion")
     return render_template('index.html')
 
+
 @app.route('/csvretiros',methods=['POST','GET'])
 def crear_csvretiros():
     site=session['SiteName']
@@ -1214,6 +1220,7 @@ def crear_csvretiros():
     response.headers["Content-Disposition"] = "attachment; filename="+"Reportre_Recibo-"+str(datetime.today())+".csv"; 
     return response
 
+
 @app.route('/csvdonacion',methods=['POST','GET'])
 def crear_csvdonacion():
     site=session['SiteName']
@@ -1277,6 +1284,7 @@ def crear_csvdonacion():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"Donacion-"+str(datetime.today())+".csv"; 
     return response
+
 
 @app.route('/csvingram',methods=['POST','GET'])
 def crear_ccsvingram():
@@ -1567,6 +1575,7 @@ def solicitudes_retiros(rowi):
   #   flash("Inicia Secion")
   #   return render_template('index.html')
 
+
 @app.route('/Solicitudes_donacion/<rowi>',methods=['POST','GET'])
 def solicitud_donacion(rowi):
   try:
@@ -1798,6 +1807,7 @@ def solicitud_donacion(rowi):
     flash("Inicia Secion")
     return render_template('index.html')
 
+
 @app.route('/Solicitudes_Ingram/<rowi>',methods=['POST','GET'])
 def solicitud_ingram(rowi):
   # try:
@@ -2028,6 +2038,7 @@ def solicitud_ingram(rowi):
   # except:
   #   return render_template('index.html')
 
+
 @app.route('/csvsolicitudretiros',methods=['POST','GET'])
 def crear_csvsolicitudretiros():
     site=session['SiteName']
@@ -2093,6 +2104,7 @@ def crear_csvsolicitudretiros():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"solicitud_retiros-"+str(datetime.today())+".csv"; 
     return response
+
 
 @app.route('/csvsolicituddonacion',methods=['POST','GET'])
 def crear_csvsolicituddonacion():
@@ -2160,6 +2172,7 @@ def crear_csvsolicituddonacion():
     response.headers["Content-Disposition"] = "attachment;filename= Solicitud_Donacion-"+str(datetime.today())+".csv"; 
     return response
 
+
 @app.route('/csvsolicitudingram',methods=['POST','GET'])
 def crear_ccsvsolicitudingram():
     site=session['SiteName']
@@ -2225,7 +2238,6 @@ def crear_ccsvsolicitudingram():
     response.headers["Content-Disposition"] = "attachment; filename="+"Solicitud_Ingram-"+str(datetime.today())+".csv"; 
     return response
 
-
 #PDF Ubicacion
 @app.route('/pdf/<ubicacion>',methods=['POST','GET'])
 def pdf_template(ubicacion):
@@ -2262,12 +2274,14 @@ def pdf_template(ubicacion):
 
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
 
+
 @app.route('/files',methods=['POST','GET'])
 def Files_():
   if 'FullName' in session:
     return render_template('form/files.html',Datos=session)
   else:
     return redirect('/')
+
 
 @app.route('/CargarDatos',methods=['POST','GET'])
 def uploadFiles():
@@ -2363,6 +2377,7 @@ def uploadFiles():
     flash('Ocurrió un error, Por favor Revisa bien los datos y vuelve a intentarlo.')
     return redirect('/files')
 
+
 @app.route('/dashboard',methods=['POST','GET'])
 def dash():
   # try:
@@ -2428,7 +2443,6 @@ def dash():
       return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
   # except:
   #   return redirect('/')
-
 
 
 if __name__=='__main__':
