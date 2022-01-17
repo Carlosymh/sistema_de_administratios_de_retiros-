@@ -123,6 +123,7 @@
     transform: scaleX(0);
     transition: transform var(--time-animation);
     transform-origin: left;
+    z-index: 10;
 }
 
 .accordion .active .link_menu{

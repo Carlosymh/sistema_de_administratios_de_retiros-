@@ -1,0 +1,204 @@
+{% extends 'nav.html'%}
+{% block cabezera%}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image" href="{{url_for('static', filename='img/logo.icon')}}"> 
+    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <link href="//db.onlinewebfonts.com/c/69f1400361a215519d385199118a34aa?family=Harabara" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/nav.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/dash.css')}}">
+    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <title>Registrar</title>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChartretiros);
+      google.charts.setOnLoadCallback(drawChartdonacion);
+      google.charts.setOnLoadCallback(drawChartingram);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChartretiros() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+          ['Pendiente', {{retiropendientes[1] }}],
+          ['En Proceso', {{retiroenproceso[1] }}],
+          ['Cerrado', {{retirocerrado[1] }}]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Avance Retiros',
+                       'width':550,
+                       'height':400};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div_retiros'));
+        chart.draw(data, options);
+      }
+      
+      function drawChartdonacion() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+          ['Pendiente', 30],
+          ['En Proceso', 15],
+          ['Cerrado', 10]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Avance Donacion',
+                       'width':550,
+                       'height':400};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div_donaciones'));
+        chart.draw(data, options);
+      }
+      function drawChartingram() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+          ['Pendiente', 30],
+          ['En Proceso', 15],
+          ['Cerrado', 10]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Avance Ingram',
+                       'width':550,
+                       'height':400};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div_ingram'));
+        chart.draw(data, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    {% with messages = get_flashed_messages() %}
+{% if messages%}
+{%for message in messages%}
+<script>
+    alert('{{message}}')
+</script>
+{%endfor%}
+{%endif%}
+{%endwith%}
+{% endblock %}
+{% block body%}
+    <!--Div that will hold the pie chart-->
+    <div class="content"> 
+        <h1 class="Titulo">Avance de Tareas</h1>
+        <div class="Graficas">
+            <div id="chart_div_retiros"></div>
+            <div id="chart_div_donaciones"></div>
+            <div id="chart_div_ingram"></div>
+        </div>
+        <form action="/dashboard" method="post">
+            <label   for="datefilter">Fecha: </label>
+                <input autocomplete="off" type="text" name="datefilter" value="" />
+            </label>
+            <input type="submit" value="Aplicar" class="btn">
+        </form>
+    </div>
+    <div class="tablas">
+        <div class="tabla_retiros">
+            <h3>Retiros</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Piezas</th>
+                        <th>Porcentaje </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tabla_Donacion">
+            <h3>Donacion</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Piezas</th>
+                        <th>Porcentaje </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tabla_Ingram">
+            <h3>Ingram</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Piezas</th>
+                        <th>Porcentaje </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+      $(function() {
+        $('input[name="datefilter"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear'
+            }
+        });
+      
+        $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+        });
+      
+        $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+      
+      });
+      </script>
+</html>
+{% endblock %}

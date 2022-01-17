@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import io
 import csv
 import pandas as pd 
+import json
 import os
 from os.path import join, dirname, realpath
 from fpdf import FPDF
@@ -23,7 +24,7 @@ db_connection = pymysql.connect(host='localhost',
 # settings
 app.secret_key = 'mysecretkey'
 
-UPLOAD_FOLDER = 'static/files'
+UPLOAD_FOLDER = 'static/file/'
 app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
 
 #Direccion Principal 
@@ -2267,44 +2268,132 @@ def Files_():
   if 'FullName' in session:
     return render_template('form/files.html',Datos=session)
   else:
-    return render_template('home.html',Datos=session)
+    return redirect('/')
 
 @app.route('/CargarDatos',methods=['POST','GET'])
 def uploadFiles():
+  try:
+    if 'FullName' in session:
       # get the uploaded file
-      f =request.files['datos']
-      flash(f.filename)
-      data=[]
-      with open(f) as file:
-        csvfile =csv.reader(file)
-        for row in csvfile:
-          data.append(row)
+      file =request.files['datos']
+      base = request.form['base']
+      
+      if base == 'Donacion':
+        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
+        # data = csv.reader(open('static/file/retiroscsv.csv'))
+        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+          data=csv.reader(csv_file, delimiter=',')
+          i=0
+          for row in data:
+            if i >0:
+              now= datetime.now()
+              cur= db_connection.cursor()
+              # Create a new record
+              sql = "INSERT INTO solicitud_donacion (numero_ola,  SKU, Cantidad_Solicitada, costo_unitario, suma_de_gmv_total, descripcion, cantidad_susrtida,  fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],0,now,session['FcName'],session['SiteName'],))
+              # connection is not autocommit by default. So you must commit to save
+              # your changes.
+              db_connection.commit()
+            i+=1 
+        
+        flash(str(i)+' Registros Exitoso')
+        return redirect('/files')
+      elif base == 'Retiros':
+        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
+        # data = csv.reader(open('static/file/retiroscsv.csv'))
+        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+          data=csv.reader(csv_file, delimiter=',')
+          i=0
+          for row in data:
+            if i>0:
+              now= datetime.now()
+              cur= db_connection.cursor()
+              # Create a new record
+              sql = "INSERT INTO solicitud_retiros (nuemro_de_ola,  meli, fecha_de_entrega, cantidad_solizitada, QTY_DISP_WMS, Descripción, Fecha_de_creacion,  facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
+              # connection is not autocommit by default. So you must commit to save
+              # your changes.
+              db_connection.commit()
+            i+=1
+        
+        flash(str(i)+' Registros Exitoso')
+        return redirect('/files')
+      elif base == 'Ingram':
+        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
+        # data = csv.reader(open('static/file/retiroscsv.csv'))
+        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+          data=csv.reader(csv_file, delimiter=',')
+          i=0
+          for row in data:
+            if i>0:
+              now= datetime.now()
+              cur= db_connection.cursor()
+              # Create a new record
+              sql = "INSERT INTO ingram (numero_ola,  SKU, Cantidad_Solicitada, cantidad_disponible, descripcion, fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4],now,session['FcName'],session['SiteName'],))
+              # connection is not autocommit by default. So you must commit to save
+              # your changes.
+              db_connection.commit()
+            i+=1
+        
+        flash(str(i)+' Registros Exitoso')
+        return redirect('/files')
+      elif base == 'Inventario Seller':
+        file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
+        # data = csv.reader(open('static/file/retiroscsv.csv'))
+        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+          data=csv.reader(csv_file, delimiter=',')
+          i=0
+          for row in data:
+            if i>0:
+              now= datetime.now()
+              cur= db_connection.cursor()
+              # Create a new record
+              sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[5],now,session['FcName'],session['SiteName'],))
+              # connection is not autocommit by default. So you must commit to save
+              # your changes.
+              db_connection.commit()
+            i+=1
+        
+        flash(str(i)+' Registros Exitoso')
+        return redirect('/files')
+    else:
+      return redirect('/')
+  except:
+    flash('Ocurrió un error, Por favor Revisa bien los datos y vuelve a intentarlo.')
+    return redirect('/files')
 
-      print(data)
-      return render_template('form/files.html',Datos=session)
-    # if base == 'Donacion':
-            # cur= db_connection.cursor()
-            # # Create a new record
-            # sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-            # cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
-            # # connection is not autocommit by default. So you must commit to save
-            # # your changes.
-            # db_connection.commit()
-      # i=0
-      # for fil in file:
-      #   i += 1
-    # elif base == 'solicitud_donacion':
-    #   i=0
-    #   for fil in file:
-    #     i += 1
-    # elif base == 'solicitud_retiros':
-    #   i=0
-    #   for fil in file:
-    #     i += 1
-    # elif base == 'ingram':
-    #   i=0
-    #   for fil in file:
-    #     i += 1
+@app.route('/dashboard',methods=['POST','GET'])
+def dash():
+  # try:
+    if request.method == 'POST':
+      daterangef=request.form['datefilter']
+      daterange=daterangef.replace("-", "' AND '")
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      retiropendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      retiroenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT 1'.format(daterange))
+      retirocerrado = cur.fetchone()
+      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado)
+    else:
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  LIMIT 1')
+      retiropendientes = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) LIMIT 1')
+      retiroenproceso = cur.fetchone()
+      cur= db_connection.cursor()
+      cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  LIMIT 1')
+      retirocerrado = cur.fetchone()
+      return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado)
+  # except:
+  #   return redirect('/')
+
 
 
 if __name__=='__main__':
