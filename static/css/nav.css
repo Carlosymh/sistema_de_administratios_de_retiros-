@@ -130,6 +130,7 @@
     display: flex;
     flex-direction: column;
     text-decoration: none;
+    z-index: 10;
     color: #fff15a;
 }
 .nav-main__btn-collapse:checked ~ .nav-main__menu{
@@ -148,6 +149,7 @@
     border: none;
     outline: none;
     transition: 0.4s;
+    z-index: 10;
 }
 .link_menu{
     display: flex;
@@ -156,6 +158,7 @@
     font-size: 20px;
     margin-top: 10px;
     margin-bottom: 20px;
+    z-index: 10;
 }
   
   /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
@@ -164,6 +167,7 @@
     background-color: none;
     color: #3483fa;
     font-size: 20px;
+    z-index: 10;
 }
   
 /* Style the accordion panel. Note: hidden by default */
@@ -173,6 +177,7 @@
     display: none;
     font-size: 15px;
     transition: max-height 0.2s ease-out;
+    z-index: 10;
 }
 .accordion:after {
     content: '\232A'; /* Unicode character for "plus" sign (+) */
@@ -182,6 +187,7 @@
     float: right;
     margin-left: 5px;
     transition: 1s;
+    z-index: 10;
 }
 
 .active:after {
@@ -192,6 +198,7 @@
     float: right;
     margin-left: 5px;
     transition: 1s;
+    z-index: 10;
 }
 .nav-main .user_info{
     margin: auto 5px auto auto ;
@@ -210,6 +217,7 @@
     border-radius: 50%;
     border:1px solid #2f3476;
     transition: 1s;
+    z-index: 10;
 }
 .nav-main .user_info a{
     margin: auto 3px auto 3px;
@@ -217,6 +225,7 @@
     font-weight: bolder;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 2vh;
+    z-index: 10;
 }
 .nav-main .user_info .fas:hover{
     background: #2f3476;
