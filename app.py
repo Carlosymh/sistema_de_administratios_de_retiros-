@@ -40,45 +40,27 @@ def Index():
 #Valida de usuario
 @app.route('/validar_usuario', methods=['POST'])
 def validarusuaro():
+  try:
     if request.method == 'POST':
       usuario =  request.form['user']
       cur= db_connection.cursor()
       # Read a single record
-      sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
-      cur.execute(sql, (usuario,))
+      cur.execute("SELECT * FROM usuarios WHERE Usuario= \'{}\' Limit 1".format(usuario))
       data = cur.fetchone()
-      if len(data) > 0 :
-        username = data[1]
-        user = data[3]
-        return render_template('inicio.html',username=username,user=user)
+      cur.close()
+      if data != None :
+        session['UserName'] = data[1]
+        session['FullName'] = data[1] + data[2]
+        session['User'] = data[3]
+        session['FcName'] = data[4]
+        session['SiteName'] = data[5]
+        session['Rango'] = data[7]
+        return redirect('/home')
       else:
-        return render_template('index.html')    
+        return redirect('/')   
+  except:
+    return redirect('/')  
 
-#Validacion de Contraseña
-@app.route('/validar_contrasena/<user>', methods=['POST'])
-def validarcontrasena(user):
-    if request.method == 'POST':
-      usuario =  user
-      password = request.form['password']
-      cur= db_connection.cursor()
-      # Read a single record
-      sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
-      cur.execute(sql, (usuario,))
-      data = cur.fetchone()
-      if len(data) > 0 :
-          if check_password_hash(data[6],password):
-            session['UserName'] = data[1]
-            session['FullName'] = data[1] + data[2]
-            session['User'] = data[3]
-            session['FcName'] = data[4]
-            session['SiteName'] = data[5]
-            session['Rango'] = data[7]
-            return redirect('/home')
-          else:
-            flash('Contraseña Incorrecta')
-            return render_template('index.html')
-      else:
-        return render_template('index.html')   
 
 #Pagina Principal
 @app.route('/home',methods=['POST','GET'])
@@ -122,31 +104,25 @@ def registrar():
         ltrabajo =  request.form['ltrabajo']
         cdt = request.form['cdt']
         usuario =  request.form['usuario']
-
-        password = _create_password(request.form['pass'])
-        password2 = _create_password(request.form['pass2'])
-        
-        if check_password_hash(password,request.form['pass']) and check_password_hash(password,request.form['pass2']):
-          cur= db_connection.cursor()
-          # Read a single record
-          sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
-          cur.execute(sql, (usuario,))
-          data = cur.fetchone()
-          if data != None:
-            flash("El Usuario Ya Existe")
-            return render_template('registro.html',Datos =session)
-          else:
-            cur= db_connection.cursor()
-            # Create a new record
-            sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-            cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
-            # connection is not autocommit by default. So you must commit to save
-            # your changes.
-            db_connection.commit()
-            flash("Registro Correcto")
-            return render_template('registro.html',Datos =session)
+        cur= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM `usuarios` WHERE `Usuario`=%s Limit 1"
+        cur.execute(sql, (usuario,))
+        data = cur.fetchone()
+        cur.close()
+        if data != None:
+          flash("El Usuario Ya Existe")
+          return render_template('registro.html',Datos =session)
         else:
-          flash("Las Contraceñas no Cionciden")
+          cur= db_connection.cursor()
+          # Create a new record
+          sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+          cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
+          # connection is not autocommit by default. So you must commit to save
+          # your changes.
+          db_connection.commit()
+          cur.close()
+          flash("Registro Correcto")
           return render_template('registro.html',Datos =session)
   except:
     return render_template('registro.html',Datos =session)
@@ -156,7 +132,7 @@ def _create_password(password):
 # Registro de Salidas Service Center
 @app.route('/ubicacion',methods=['POST'])
 def registro_s_s():
-  # try:
+  try:
       if request.method == 'POST':
         meli = request.form['meli']
         cur= db_connection.cursor()
@@ -177,6 +153,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             piesas= int(retiros[7])+1
             idretiro =int(retiros[0])
             if  piesas < int(retiros[4]):
@@ -190,6 +167,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
         cur= db_connection.cursor()
@@ -210,6 +188,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             piesas= int(donacion[7])+1
             iddonacion =int(donacion[0])
             if  piesas < int(donacion[3]):
@@ -223,6 +202,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
         cur= db_connection.cursor()
@@ -243,6 +223,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             piesas= int(ingram[5])+1
             idingram =int(ingram[0])
             if  piesas < int(ingram[3]):
@@ -256,6 +237,7 @@ def registro_s_s():
             # connection is not autocommit by default. So you must commit to save
             # your changes.
             db_connection.commit()
+            cur.close()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
         flash("No hay Tareas Pendientes")
@@ -263,20 +245,20 @@ def registro_s_s():
       else:
         flash("No has enviado un registro")
         return render_template('form/retiros.html',Datos = session)
-  # except:
-  #   flash("Llena todos los Campos Correctamente")
-  #   return render_template('form/retiros.html',Datos = session)
+  except:
+    flash("Llena todos los Campos Correctamente")
+    return render_template('form/retiros.html',Datos = session)
 
 #Cerrar Session
 @app.route('/logout')
 def Cerrar_session():
-  session.clear()
-  return render_template('index.html')
+  session.pop('FullName')
+  return redirect('/')
 
 #Reportes
 @app.route('/Reporte_Retiros/<rowi>',methods=['POST','GET'])
 def Reporte_retiros(rowi):
-  # try:
+  try:
       if request.method == 'POST':
         if request.method == 'GET':
           session['rowi_recibo']=rowi
@@ -299,6 +281,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -306,6 +289,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_recibo')
@@ -314,6 +298,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -328,6 +313,7 @@ def Reporte_retiros(rowi):
                     sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_recibo')
@@ -337,6 +323,7 @@ def Reporte_retiros(rowi):
                     sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   daterangef=request.form['datefilter']
@@ -347,6 +334,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 if 'valor_recibo' in session:
@@ -359,6 +347,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -366,6 +355,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               if 'valor_recibo' in session:
@@ -378,6 +368,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         elif 'datefilter' in request.form:
           if len(request.form['datefilter'])>0:
@@ -391,6 +382,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('filtro_recibo')
@@ -400,6 +392,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -407,6 +400,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'valor_recibo' in session:
@@ -419,6 +413,7 @@ def Reporte_retiros(rowi):
             sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
             cur.execute(sql)
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         else:
           if 'valor_recibo' in session:
@@ -430,6 +425,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_recibo')
@@ -438,6 +434,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -445,6 +442,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_recibo')
@@ -456,6 +454,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -463,6 +462,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -470,6 +470,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter_recibo' in session:
@@ -479,6 +480,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
@@ -487,6 +489,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -499,6 +502,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -506,6 +510,7 @@ def Reporte_retiros(rowi):
                   sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
@@ -513,6 +518,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
         
       else: 
@@ -532,6 +538,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
@@ -540,6 +547,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -547,6 +555,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_recibo'],session['valor_recibo'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_recibo')
@@ -558,6 +567,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_recibo')
@@ -566,6 +576,7 @@ def Reporte_retiros(rowi):
                 sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -573,6 +584,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
         else:
           if 'datefilter_recibo' in session:
@@ -582,6 +594,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_recibo'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_recibo')
@@ -590,6 +603,7 @@ def Reporte_retiros(rowi):
               sql = "SELECT * FROM retiros LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
@@ -597,10 +611,11 @@ def Reporte_retiros(rowi):
             sql = "SELECT * FROM retiros  LIMIT {}, {}".format(row1,row2)
             cur.execute(sql)
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_retiros.html',Datos = session,Infos =data)         
-  # except:
-  #   flash("Inicia Secion")
-  #   return render_template('index.html')
+  except:
+    flash("Inicia Secion")
+    return render_template('index.html')
 
 
 @app.route('/Reporte_donacion/<rowi>',methods=['POST','GET'])
@@ -628,6 +643,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -635,6 +651,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter')
@@ -643,6 +660,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -657,6 +675,7 @@ def Reporte_donacion(rowi):
                     sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_donacion')
@@ -666,6 +685,7 @@ def Reporte_donacion(rowi):
                     sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
                   daterangef=request.form['datefilter']
@@ -676,6 +696,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 if 'valor_donacion' in session:
@@ -688,6 +709,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
             else:
               if 'valor_donacion' in session:
                 session.pop('filtro_donacion')
@@ -699,6 +721,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
 
         else:
@@ -711,6 +734,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_donacion')
@@ -719,6 +743,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -726,6 +751,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_donacion')
@@ -737,6 +763,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -744,6 +771,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -751,6 +779,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter_donacion' in session:
@@ -760,12 +789,14 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -778,6 +809,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -785,6 +817,7 @@ def Reporte_donacion(rowi):
                   sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
@@ -792,6 +825,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -810,6 +844,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
@@ -818,6 +853,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -825,6 +861,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_donacion'],session['valor_donacion'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_donacion')
@@ -836,6 +873,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_donacion')
@@ -844,6 +882,7 @@ def Reporte_donacion(rowi):
                 sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -851,6 +890,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
         else:
           if 'datefilter_donacion' in session:
@@ -860,6 +900,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_donacion'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_donacion')
@@ -868,6 +909,7 @@ def Reporte_donacion(rowi):
               sql = "SELECT * FROM donacion LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
@@ -875,6 +917,7 @@ def Reporte_donacion(rowi):
             sql = "SELECT * FROM donacion  LIMIT {}, {}".format(row1,row2)
             cur.execute(sql)
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_donacion.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
@@ -906,6 +949,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -913,6 +957,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_ingram')
@@ -921,6 +966,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -935,6 +981,7 @@ def Reporte_ingram(rowi):
                     sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_ingram')
@@ -944,6 +991,7 @@ def Reporte_ingram(rowi):
                     sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                     cur.execute(sql)
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -951,6 +999,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 if 'valor_ingram' in session:
@@ -963,6 +1012,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
             else:
               if 'valor_ingram' in session:
                 session.pop('filtro_ingram')
@@ -974,6 +1024,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
         else:
           if 'valor_ingram' in session:
             if len(session['valor_ingram'])>0:
@@ -984,6 +1035,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_ingram')
@@ -992,6 +1044,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -999,6 +1052,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_ingram')
@@ -1010,6 +1064,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -1017,6 +1072,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
@@ -1024,6 +1080,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter_ingram' in session:
@@ -1033,6 +1090,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
@@ -1041,6 +1099,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -1053,6 +1112,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram WHERE  fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
@@ -1060,6 +1120,7 @@ def Reporte_ingram(rowi):
                   sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
                   cur.execute(sql)
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
@@ -1067,6 +1128,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -1085,6 +1147,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
@@ -1093,6 +1156,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -1100,6 +1164,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}".format(session['filtro_ingram'],session['valor_ingram'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_ingram')
@@ -1111,6 +1176,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_ingram')
@@ -1119,6 +1185,7 @@ def Reporte_ingram(rowi):
                 sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
                 cur.execute(sql)
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
@@ -1126,6 +1193,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
         else:
           if 'datefilter_ingram' in session:
@@ -1135,6 +1203,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}".format(session['datefilter_ingram'],row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_ingram')
@@ -1143,6 +1212,7 @@ def Reporte_ingram(rowi):
               sql = "SELECT * FROM retirio_ingram LIMIT {}, {}".format(row1,row2)
               cur.execute(sql)
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_ingram.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
@@ -1150,6 +1220,7 @@ def Reporte_ingram(rowi):
             sql = "SELECT * FROM retirio_ingram  LIMIT {}, {}".format(row1,row2)
             cur.execute(sql)
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_ingram.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
@@ -1168,42 +1239,51 @@ def crear_csvretiros():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],session['datefilter_recibo'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_recibo'],session['valor_recibo'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_recibo' in session:
           if len(session['datefilter_recibo'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_recibo' in session:
         if len(session['datefilter_recibo'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retiros WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_recibo'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retiros LIMIT {}, {}'.format(row1,row2))
-          data = cur.fechall()
+          data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM retiros  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"Meli"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+"\n"
     for res in data:
       datos+=str(res[0])
@@ -1233,42 +1313,51 @@ def crear_csvdonacion():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],session['datefilter_donacion'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_donacion'],session['valor_donacion'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_donacion' in session:
           if len(session['datefilter_donacion'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_donacion' in session:
         if len(session['datefilter_donacion'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM donacion WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_donacion'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM donacion LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM donacion  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
@@ -1298,42 +1387,51 @@ def crear_ccsvingram():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\' AND fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],session['datefilter_ingram'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retirio_ingram WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_ingram'],session['valor_ingram'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_ingram' in session:
           if len(session['datefilter_ingram'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_ingram' in session:
         if len(session['datefilter_ingram'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retirio_ingram WHERE fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_ingram'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM retirio_ingram LIMIT {}, {}'.format(row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM retirio_ingram  LIMIT {}, {}'.format(row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad"+","+"Ubicacion"+","+"Responsable"+","+"Fecha"+","+"Fecha y Hora"+","+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
@@ -1353,7 +1451,7 @@ def crear_ccsvingram():
 #Solicitudes
 @app.route('/Solicitudes_Retiros/<rowi>',methods=['POST','GET'])
 def solicitudes_retiros(rowi):
-  # try:
+  try:
       if request.method == 'POST':
         if request.method == 'GET':
           session['rowi_solicitudrecibo']=rowi
@@ -1374,17 +1472,20 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicitudrecibo')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -1397,6 +1498,7 @@ def solicitudes_retiros(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_solicitudrecibo')
@@ -1404,6 +1506,7 @@ def solicitudes_retiros(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   daterangef=request.form['datefilter']
@@ -1412,6 +1515,7 @@ def solicitudes_retiros(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 if 'valor_solicitudrecibo' in session:
@@ -1422,6 +1526,7 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_retiros.html',Datos = session,Infos =data)
             else:
               if 'valor_solicitudrecibo' in session:
@@ -1432,6 +1537,7 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
 
         else:
@@ -1442,17 +1548,20 @@ def solicitudes_retiros(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_solicitudrecibo')
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_solicitudrecibo')
@@ -1462,16 +1571,19 @@ def solicitudes_retiros(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
             if 'datefilter_solicitudrecibo' in session:
@@ -1479,12 +1591,14 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudrecibo')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -1495,16 +1609,19 @@ def solicitudes_retiros(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros WHERE  fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -1521,17 +1638,20 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudrecibo')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_solicitudrecibo')
@@ -1541,17 +1661,20 @@ def solicitudes_retiros(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudrecibo')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
         else:
           if 'datefilter_solicitudrecibo' in session:
@@ -1559,21 +1682,24 @@ def solicitudes_retiros(rowi):
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicitudrecibo')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_retiros LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_retiros  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)         
-  # except:
-  #   flash("Inicia Secion")
-  #   return render_template('index.html')
+  except:
+    flash("Inicia Secion")
+    return render_template('index.html')
 
 
 @app.route('/Solicitudes_donacion/<rowi>',methods=['POST','GET'])
@@ -1599,17 +1725,20 @@ def solicitud_donacion(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicituddonacion')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -1622,6 +1751,7 @@ def solicitud_donacion(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_solicituddonacion')
@@ -1629,11 +1759,13 @@ def solicitud_donacion(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 if 'valor_solicituddonacion' in session:
@@ -1644,11 +1776,13 @@ def solicitud_donacion(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               if 'valor_solicituddonacion' in session:
@@ -1659,11 +1793,13 @@ def solicitud_donacion(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
 
         else:
@@ -1674,17 +1810,20 @@ def solicitud_donacion(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_solicituddonacion')
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_solicituddonacion')
@@ -1694,16 +1833,19 @@ def solicitud_donacion(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion WHERE Fecha BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
             if 'datefilter_solicituddonacion' in session:
@@ -1711,12 +1853,14 @@ def solicitud_donacion(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicituddonacion')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -1727,16 +1871,19 @@ def solicitud_donacion(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion WHERE  fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -1753,17 +1900,20 @@ def solicitud_donacion(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicituddonacion')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_solicituddonacion')
@@ -1773,17 +1923,20 @@ def solicitud_donacion(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicituddonacion')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
         else:
           if 'datefilter_solicituddonacion' in session:
@@ -1791,17 +1944,20 @@ def solicitud_donacion(rowi):
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicituddonacion')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM solicitud_donacion LIMIT {}, {}'.format(row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_donacion  LIMIT {}, {}'.format(row1,row2))
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)         
   except:
     flash("Inicia Secion")
@@ -1810,7 +1966,7 @@ def solicitud_donacion(rowi):
 
 @app.route('/Solicitudes_Ingram/<rowi>',methods=['POST','GET'])
 def solicitud_ingram(rowi):
-  # try:
+  try:
       if request.method == 'POST':
         if request.method == 'GET':
           session['rowi_solicitudingram']=rowi
@@ -1831,17 +1987,20 @@ def solicitud_ingram(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicitudingram')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter' in request.form:
@@ -1854,6 +2013,7 @@ def solicitud_ingram(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                   else:
                     session.pop('filtro_solicitudingram')
@@ -1861,11 +2021,13 @@ def solicitud_ingram(rowi):
                     cur= db_connection.cursor()
                     cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                     data = cur.fetchall()
+                    cur.close()
                     return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 if 'valor_solicitudingram' in session:
@@ -1876,11 +2038,13 @@ def solicitud_ingram(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               if 'valor_solicitudingram' in session:
@@ -1891,11 +2055,13 @@ def solicitud_ingram(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
 
         else:
@@ -1906,17 +2072,20 @@ def solicitud_ingram(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   session.pop('datefilter_solicitudingram')
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
             else:
               session.pop('filtro_solicitudingram')
@@ -1926,16 +2095,19 @@ def solicitud_ingram(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
             if 'datefilter_solicitudingram' in session:
@@ -1943,12 +2115,14 @@ def solicitud_ingram(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudingram')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               if 'datefilter' in request.form:
@@ -1959,16 +2133,19 @@ def solicitud_ingram(rowi):
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE  fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
                 else:
                   cur= db_connection.cursor()
                   cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                   data = cur.fetchall()
+                  cur.close()
                   return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
               else:
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
       else: 
         if request.method == 'GET':
@@ -1985,17 +2162,20 @@ def solicitud_ingram(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudingram')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data) 
           else:
             session.pop('filtro_solicitudingram')
@@ -2005,17 +2185,20 @@ def solicitud_ingram(rowi):
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
               else:
                 session.pop('datefilter_solicitudingram')
                 cur= db_connection.cursor()
                 cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
                 data = cur.fetchall()
+                cur.close()
                 return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
         else:
           if 'datefilter_solicitudingram' in session:
@@ -2023,20 +2206,23 @@ def solicitud_ingram(rowi):
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
             else:
               session.pop('datefilter_solicitudingram')
               cur= db_connection.cursor()
               cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
               data = cur.fetchall()
+              cur.close()
               return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
             return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)         
-  # except:
-  #   return render_template('index.html')
+  except:
+    return render_template('index.html')
 
 
 @app.route('/csvsolicitudretiros',methods=['POST','GET'])
@@ -2051,41 +2237,51 @@ def crear_csvsolicitudretiros():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\' AND fecha_de_entrega BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['datefilter_solicitudrecibo'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_retiros WHERE {} LIKE \'%{}%\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudrecibo'],session['valor_solicitudrecibo'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_solicitudrecibo' in session:
           if len(session['datefilter_solicitudrecibo'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_retiros WHERE  Site =  \'{}\'  LIMIT {}, {}'.format(session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_retiros  WHERE  Site =  \'{}\'  LIMIT {}, {}'.format(session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_solicitudrecibo' in session:
         if len(session['datefilter_solicitudrecibo'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_retiros WHERE fecha_de_entrega BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicitudrecibo'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_retiros WHERE  Site =  \'{}\'  LIMIT {}, {}'.format(session['SiteName'],row1,row2))
+          data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM solicitud_retiros WHERE  Site =  \'{}\'   LIMIT {}, {}'.format(session['SiteName'],row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"Meli"+","+"Fecha de Entrega"+","+"Cantidad Solicitada"+","+"QTY_DISP_WMS"+","+"Descripción"+","+"cantidad_susrtida"+","+"Estatus"+","+"Ubicacion"+","+"Fecha de creacion"+"\n"
     for res in data:
       datos+=str(res[0])
@@ -2118,41 +2314,51 @@ def crear_csvsolicituddonacion():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['datefilter_solicituddonacion'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_donacion WHERE {} LIKE \'%{}%\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicituddonacion'],session['valor_solicituddonacion'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_solicituddonacion' in session:
           if len(session['datefilter_solicituddonacion'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM solicitud_donacion  WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_donacion  WHERE  Site =  \'{}\'  LIMIT {}, {}'.format(session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_solicituddonacion' in session:
         if len(session['datefilter'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_donacion WHERE fecha_de_solicitud BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['datefilter_solicituddonacion'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM solicitud_donacion  WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
+          data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM solicitud_donacion  WHERE  Site =  \'{}\'  LIMIT {}, {}'.format(session['SiteName'],row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad Solicitada"+","+"Costo Unitario"+","+"Suma de GMV"+","+"Descripcion"+","+"Cantidad Surtida "+","+"Status"+","+"Ubicacion"+","+"Fecha "+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
@@ -2185,41 +2391,51 @@ def crear_ccsvsolicitudingram():
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND fecha_de_solicitud BETWEEN \'{}\'  AND  Site =  \'{}\'  LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM ingram WHERE {} LIKE \'%{}%\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['filtro_solicitudingram'],session['valor_solicitudingram'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
       else:
         if 'datefilter_solicitudingram' in session:
           if len(session['datefilter_solicitudingram'])>0:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
           else:
             cur= db_connection.cursor()
             cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
             data = cur.fetchall()
+            cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
     else:
       if 'datefilter_solicitudingram' in session:
         if len(session['datefilter'])>0:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM ingram WHERE fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT {}, {}'.format(session['datefilter_solicitudingram'],session['SiteName'],row1,row2))
           data = cur.fetchall()
+          cur.close()
         else:
           cur= db_connection.cursor()
           cur.execute('SELECT * FROM ingram WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
+          data = cur.fetchall()
+          cur.close()
       else:
         cur= db_connection.cursor()
         cur.execute('SELECT * FROM ingram  WHERE  Site =  \'{}\' LIMIT {}, {}'.format(session['SiteName'],row1,row2))
         data = cur.fetchall()
+        cur.close()
     datos="Id"+","+"Ola"+","+"SKU"+","+"Cantidad Solicitada"+","+"Cantidad Disponible"+","+"Piezas Surtidas"+","+"Descripcion"+","+"Estatus"+","+"Ubicacion"+","+"Fecha"+"\n"
     for res in data:
       datos+=str(res[0]).replace(","," ")
@@ -2307,6 +2523,7 @@ def uploadFiles():
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
+              cur.close()
             i+=1 
         
         flash(str(i)+' Registros Exitoso')
@@ -2327,6 +2544,7 @@ def uploadFiles():
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
+              cur.close()
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -2347,6 +2565,7 @@ def uploadFiles():
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
+              cur.close()
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -2367,6 +2586,7 @@ def uploadFiles():
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
+              cur.close()
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -2380,69 +2600,87 @@ def uploadFiles():
 
 @app.route('/dashboard',methods=['POST','GET'])
 def dash():
-  # try:
+  try:
     if request.method == 'POST':
       daterangef=request.form['datefilter']
       daterange=daterangef.replace("-", "' AND '")
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
       retiropendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       retiroenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       retirocerrado = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Pendiente\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
       donacionpendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'En Proceso\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       donacionenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Cerrado\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       donacionocerrado = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Pendiente\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\' LIMIT 1'.format(daterange, session['SiteName']))
       ingrampendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'En Proceso\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       ingramenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Cerrado\' AND fecha_de_solicitud BETWEEN \'{}\' AND  Site =  \'{}\'  LIMIT 1'.format(daterange, session['SiteName']))
       ingramcerrado = cur.fetchone()
+      cur.close()
       return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
     else:
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Pendiente\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       retiropendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'En Proceso\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       retiroenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(cantidad_solizitada), COUNT(id_tarea_retiros) FROM solicitud_retiros WHERE status = \'Cerrado\' AND fecha_de_entrega BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE)  AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       retirocerrado = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Pendiente\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       donacionpendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'En Proceso\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       donacionenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_donacion) FROM solicitud_donacion WHERE status = \'Cerrado\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       donacionocerrado = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Pendiente\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\' LIMIT 1'.format(session['SiteName']))
       ingrampendientes = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'En Proceso\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       ingramenproceso = cur.fetchone()
+      cur.close()
       cur= db_connection.cursor()
       cur.execute('SELECT  SUM(Cantidad_Solicitada), COUNT(id_solicitud) FROM ingram WHERE estatus = \'Cerrado\' AND fecha_de_solicitud BETWEEN (CURRENT_DATE-30) AND (CURRENT_DATE) AND  Site =  \'{}\'  LIMIT 1'.format(session['SiteName']))
       ingramcerrado = cur.fetchone()
+      cur.close()
       return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
-  # except:
-  #   return redirect('/')
+  except:
+    return redirect('/')
 
 
 if __name__=='__main__':
