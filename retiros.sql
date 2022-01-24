@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-01-2022 a las 04:05:35
+-- Tiempo de generación: 24-01-2022 a las 20:37:05
 -- Versión del servidor: 10.4.21-MariaDB
 -- Versión de PHP: 8.0.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `retiros_2`
 --
+CREATE DATABASE IF NOT EXISTS `retiros_2` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `retiros_2`;
 
 -- --------------------------------------------------------
 
@@ -27,6 +29,7 @@ SET time_zone = "+00:00";
 -- Estructura de tabla para la tabla `donacion`
 --
 
+DROP TABLE IF EXISTS `donacion`;
 CREATE TABLE `donacion` (
   `id_donacion` bigint(110) NOT NULL,
   `nuemro_de_ola` bigint(110) NOT NULL,
@@ -46,6 +49,7 @@ CREATE TABLE `donacion` (
 -- Estructura de tabla para la tabla `ingram`
 --
 
+DROP TABLE IF EXISTS `ingram`;
 CREATE TABLE `ingram` (
   `id_solicitud` bigint(110) NOT NULL,
   `numero_ola` bigint(20) NOT NULL,
@@ -56,7 +60,7 @@ CREATE TABLE `ingram` (
   `descripcion` varchar(255) NOT NULL,
   `estatus` varchar(255) DEFAULT 'Pendiente',
   `ubicacion` varchar(255) DEFAULT NULL,
-  `fecha_de_solicitud` date NOT NULL DEFAULT current_timestamp(),
+  `fecha_de_solicitud` date NOT NULL,
   `facility` varchar(255) NOT NULL,
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -67,13 +71,14 @@ CREATE TABLE `ingram` (
 -- Estructura de tabla para la tabla `inventario_seller`
 --
 
+DROP TABLE IF EXISTS `inventario_seller`;
 CREATE TABLE `inventario_seller` (
   `INVENTORY_ID` varchar(110) NOT NULL,
   `ADDRESS_ID_TO` varchar(255) NOT NULL,
   `Seller` varchar(255) NOT NULL,
   `Holding` varchar(255) NOT NULL,
   `Cantidad` bigint(110) NOT NULL,
-  `fecha_de_actualizacion` date NOT NULL DEFAULT current_timestamp(),
+  `fecha_de_actualizacion` date NOT NULL,
   `facility` varchar(255) NOT NULL,
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -84,6 +89,7 @@ CREATE TABLE `inventario_seller` (
 -- Estructura de tabla para la tabla `retirio_ingram`
 --
 
+DROP TABLE IF EXISTS `retirio_ingram`;
 CREATE TABLE `retirio_ingram` (
   `id_retiro` bigint(20) NOT NULL,
   `nuemro_de_ola` bigint(110) NOT NULL,
@@ -103,6 +109,7 @@ CREATE TABLE `retirio_ingram` (
 -- Estructura de tabla para la tabla `retiros`
 --
 
+DROP TABLE IF EXISTS `retiros`;
 CREATE TABLE `retiros` (
   `id_retiro` bigint(20) NOT NULL,
   `nuemro_de_ola` bigint(20) NOT NULL,
@@ -110,8 +117,8 @@ CREATE TABLE `retiros` (
   `cantidad` bigint(110) NOT NULL,
   `ubicacion` varchar(255) NOT NULL,
   `responsable` varchar(255) NOT NULL,
-  `fecha` date NOT NULL DEFAULT current_timestamp(),
-  `fecha_hora` datetime NOT NULL DEFAULT current_timestamp(),
+  `fecha` date NOT NULL,
+  `fecha_hora` datetime NOT NULL,
   `facility` varchar(255) NOT NULL,
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -122,6 +129,7 @@ CREATE TABLE `retiros` (
 -- Estructura de tabla para la tabla `solicitud_donacion`
 --
 
+DROP TABLE IF EXISTS `solicitud_donacion`;
 CREATE TABLE `solicitud_donacion` (
   `id_donacion` bigint(110) NOT NULL,
   `numero_ola` bigint(20) NOT NULL,
@@ -133,7 +141,7 @@ CREATE TABLE `solicitud_donacion` (
   `cantidad_susrtida` bigint(20) NOT NULL,
   `status` varchar(255) DEFAULT 'Pendiente',
   `ubicacion` varchar(255) DEFAULT NULL,
-  `fecha_de_solicitud` date NOT NULL DEFAULT current_timestamp(),
+  `fecha_de_solicitud` date NOT NULL,
   `facility` varchar(255) NOT NULL,
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -144,6 +152,7 @@ CREATE TABLE `solicitud_donacion` (
 -- Estructura de tabla para la tabla `solicitud_retiros`
 --
 
+DROP TABLE IF EXISTS `solicitud_retiros`;
 CREATE TABLE `solicitud_retiros` (
   `id_tarea_retiros` bigint(11) NOT NULL,
   `nuemro_de_ola` bigint(110) NOT NULL,
@@ -155,7 +164,7 @@ CREATE TABLE `solicitud_retiros` (
   `cantidad_susrtida` bigint(110) DEFAULT 0,
   `status` varchar(255) DEFAULT 'Pendiente',
   `ubicacion` varchar(255) DEFAULT NULL,
-  `Fecha_de_creacion` date NOT NULL DEFAULT current_timestamp(),
+  `Fecha_de_creacion` date NOT NULL,
   `facility` varchar(255) NOT NULL,
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -166,6 +175,7 @@ CREATE TABLE `solicitud_retiros` (
 -- Estructura de tabla para la tabla `usuarios`
 --
 
+DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `ID` bigint(100) NOT NULL,
   `Nombre` varchar(250) NOT NULL,
@@ -181,7 +191,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`ID`, `Nombre`, `Apellido`, `Usuario`, `ltrabajo`, `cdt`, `Rango`) VALUES
-(60, 'administrador', '01', 'admin', 'Fulfillment', 'Odonnell', 'Administrador');
+(60, 'admintrador', '01', 'admin01', 'Fulfillment', 'Odonnell', 'Administrador');
 
 --
 -- Índices para tablas volcadas
