@@ -10,8 +10,7 @@ from datetime import datetime, date
 import hashlib
 import qrcode
 from app.app.connect import connectBD
-
-# import pymysql
+import pymysql
 
 # db_connection = pymysql.connect(host=mysql_host, port=mysql_port, user=mysql_user, passwd=mysql_pass, db=mysql_db) 
 
@@ -119,22 +118,25 @@ def registrar():
           flash("El Usuario Ya Existe")
           return render_template('registro.html',Datos =session)
         else:
-          link = connectBD()
-          db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-          cur= db_connection.cursor()
-          # Create a new record
-          sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-          cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
-          # connection is not autocommit by default. So you must commit to save
-          # your changes.
-          db_connection.commit()
-          cur.close()
-          flash("Registro Correcto")
-          return render_template('registro.html',Datos =session)
+          try:
+            link = connectBD()
+            db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+            cur= db_connection.cursor()
+            # Create a new record
+            sql = "INSERT INTO usuarios (Nombre,Apellido, Usuario, ltrabajo, cdt, contraseña, Rango) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            cur.execute(sql,(nombre,apellido,usuario,ltrabajo,cdt,password,rango,))
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            db_connection.commit()
+            cur.close()
+            flash("Registro Correcto")
+            return render_template('registro.html',Datos =session)
+          except:
+            flash("Ocurrio un error al Registrar Usuario")
+            return render_template('registro.html',Datos =session)
   except:
+    flash("Ocurrio un error al Registrar Usuario")
     return render_template('registro.html',Datos =session)
-def _create_password(password):
-   return generate_password_hash(password,'pbkdf2:sha256:30',30)
 
 # Registro de Salidas Service Center
 @app.route('/ubicacion',methods=['POST'])
@@ -277,7 +279,7 @@ def registro_s_s():
 #Cerrar Session
 @app.route('/logout')
 def Cerrar_session():
-  session.pop('FullName')
+  session.clear()
   return redirect('/')
 
 #Reportes
@@ -3003,18 +3005,21 @@ def uploadFiles():
           for row in data:
             if i >0:
               now= datetime.now()
-              link = connectBD()
-              db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-              cur= db_connection.cursor()
-              # Create a new record
-              sql = "INSERT INTO solicitud_donacion (numero_ola,  SKU, Cantidad_Solicitada, costo_unitario, suma_de_gmv_total, descripcion, cantidad_susrtida,  fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],0,now,session['FcName'],session['SiteName'],))
-              # connection is not autocommit by default. So you must commit to save
-              # your changes.
-              db_connection.commit()
-              cur.close()
+              try:
+                link = connectBD()
+                db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+                cur= db_connection.cursor()
+                # Create a new record
+                sql = "INSERT INTO solicitud_donacion (numero_ola,  SKU, Cantidad_Solicitada, costo_unitario, suma_de_gmv_total, descripcion, cantidad_susrtida,  fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],0,now,session['FcName'],session['SiteName'],))
+                # connection is not autocommit by default. So you must commit to save
+                # your changes.
+                db_connection.commit()
+                cur.close()
+              except:
+              flash('Error al cargar datos')
+              return redirect('/files')
             i+=1 
-        
         flash(str(i)+' Registros Exitoso')
         return redirect('/files')
       elif base == 'Retiros':
@@ -3026,16 +3031,20 @@ def uploadFiles():
           for row in data:
             if i>0:
               now= datetime.now()
-              link = connectBD()
-              db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-              cur= db_connection.cursor()
-              # Create a new record
-              sql = "INSERT INTO solicitud_retiros (nuemro_de_ola,  meli, fecha_de_entrega, cantidad_solizitada, QTY_DISP_WMS, Descripción, Fecha_de_creacion,  facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
-              # connection is not autocommit by default. So you must commit to save
-              # your changes.
-              db_connection.commit()
-              cur.close()
+              try:
+                link = connectBD()
+                db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+                cur= db_connection.cursor()
+                # Create a new record
+                sql = "INSERT INTO solicitud_retiros (nuemro_de_ola,  meli, fecha_de_entrega, cantidad_solizitada, QTY_DISP_WMS, Descripción, Fecha_de_creacion,  facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
+                # connection is not autocommit by default. So you must commit to save
+                # your changes.
+                db_connection.commit()
+                cur.close()
+              except:
+              flash('Error al cargar datos')
+              return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -3049,16 +3058,20 @@ def uploadFiles():
           for row in data:
             if i>0:
               now= datetime.now()
-              link = connectBD()
-              db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-              cur= db_connection.cursor()
-              # Create a new record
-              sql = "INSERT INTO ingram (numero_ola,  SKU, Cantidad_Solicitada, cantidad_disponible, descripcion, fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4],now,session['FcName'],session['SiteName'],))
-              # connection is not autocommit by default. So you must commit to save
-              # your changes.
-              db_connection.commit()
-              cur.close()
+              try:
+                link = connectBD()
+                db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+                cur= db_connection.cursor()
+                # Create a new record
+                sql = "INSERT INTO ingram (numero_ola,  SKU, Cantidad_Solicitada, cantidad_disponible, descripcion, fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+                cur.execute(sql,(row[0], row[1], row[2], row[3], row[4],now,session['FcName'],session['SiteName'],))
+                # connection is not autocommit by default. So you must commit to save
+                # your changes.
+                db_connection.commit()
+                cur.close()
+              except:
+              flash('Error al cargar datos')
+              return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -3072,16 +3085,20 @@ def uploadFiles():
           for row in data:
             if i>0:
               now= datetime.now()
-              link = connectBD()
-              db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-              cur= db_connection.cursor()
-              # Create a new record
-              sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
-              # connection is not autocommit by default. So you must commit to save
-              # your changes.
-              db_connection.commit()
-              cur.close()
+              try:
+                link = connectBD()
+                db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+                cur= db_connection.cursor()
+                # Create a new record
+                sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+                cur.execute(sql,(row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
+                # connection is not autocommit by default. So you must commit to save
+                # your changes.
+                db_connection.commit()
+                cur.close()
+              except:
+              flash('Error al cargar datos')
+              return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
