@@ -3017,8 +3017,8 @@ def uploadFiles():
                 db_connection.commit()
                 cur.close()
               except:
-              flash('Error al cargar datos')
-              return redirect('/files')
+                flash('Error al cargar datos')
+                return redirect('/files')
             i+=1 
         flash(str(i)+' Registros Exitoso')
         return redirect('/files')
@@ -3043,8 +3043,8 @@ def uploadFiles():
                 db_connection.commit()
                 cur.close()
               except:
-              flash('Error al cargar datos')
-              return redirect('/files')
+                flash('Error al cargar datos')
+                return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -3070,8 +3070,8 @@ def uploadFiles():
                 db_connection.commit()
                 cur.close()
               except:
-              flash('Error al cargar datos')
-              return redirect('/files')
+                flash('Error al cargar datos')
+                return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
@@ -3097,8 +3097,8 @@ def uploadFiles():
                 db_connection.commit()
                 cur.close()
               except:
-              flash('Error al cargar datos')
-              return redirect('/files')
+                flash('Error al cargar datos')
+                return redirect('/files')
             i+=1
         
         flash(str(i)+' Registros Exitoso')
