@@ -131,11 +131,11 @@ def registrar():
             cur.close()
             flash("Registro Correcto")
             return render_template('registro.html',Datos =session)
-          except:
-            flash("Ocurrio un error al Registrar Usuario")
+          except Exception as error: 
+            flash(str(error))
             return render_template('registro.html',Datos =session)
-  except:
-    flash("Ocurrio un error al Registrar Usuario")
+  except Exception as error: 
+    flash(str(error))
     return render_template('registro.html',Datos =session)
 
 # Registro de Salidas Service Center
@@ -3016,8 +3016,8 @@ def uploadFiles():
                 # your changes.
                 db_connection.commit()
                 cur.close()
-              except:
-                flash('Error al cargar datos')
+              except Exception as error: 
+                flash(str(error))
                 return redirect('/files')
             i+=1 
         flash(str(i)+' Registros Exitoso')
@@ -3042,8 +3042,8 @@ def uploadFiles():
                 # your changes.
                 db_connection.commit()
                 cur.close()
-              except:
-                flash('Error al cargar datos')
+              except Exception as error: 
+                flash(str(error))
                 return redirect('/files')
             i+=1
         
@@ -3069,8 +3069,8 @@ def uploadFiles():
                 # your changes.
                 db_connection.commit()
                 cur.close()
-              except:
-                flash('Error al cargar datos')
+              except Exception as error: 
+                flash(str(error))
                 return redirect('/files')
             i+=1
         
@@ -3096,8 +3096,8 @@ def uploadFiles():
                 # your changes.
                 db_connection.commit()
                 cur.close()
-              except:
-                flash('Error al cargar datos')
+              except Exception as error: 
+                flash(str(error))
                 return redirect('/files')
             i+=1
         
