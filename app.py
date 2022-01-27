@@ -93,7 +93,7 @@ def No_procesable_form():
 @app.route('/registro',methods=['POST','GET'])
 def registro():
   try:
-    if session['Rango'] == 'Administrador':
+    if session['Rango'] == 'Administrador' or session['Rango'] == 'Training' :
       return render_template('registro.html', Datos = session)
     else:
       flash("Acseso Denegado")
