@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-01-2022 a las 20:37:05
+-- Tiempo de generación: 27-01-2022 a las 03:41:04
 -- Versión del servidor: 10.4.21-MariaDB
 -- Versión de PHP: 8.0.12
 
@@ -126,6 +126,30 @@ CREATE TABLE `retiros` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE `roles` (
+  `ID` bigint(100) NOT NULL,
+  `Nombre` varchar(250) NOT NULL,
+  `Apellido` varchar(255) NOT NULL,
+  `Usuario` varchar(70) NOT NULL,
+  `facility` varchar(250) NOT NULL,
+  `Site` varchar(255) NOT NULL,
+  `Rango` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `roles`
+--
+
+INSERT INTO `roles` (`ID`, `Nombre`, `Apellido`, `Usuario`, `facility`, `Site`, `Rango`) VALUES
+(60, 'admintrador', '01', 'admin01', 'Fulfillment', 'Odonnell', 'Administrador');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `solicitud_donacion`
 --
 
@@ -169,30 +193,6 @@ CREATE TABLE `solicitud_retiros` (
   `Site` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuarios`
---
-
-DROP TABLE IF EXISTS `usuarios`;
-CREATE TABLE `usuarios` (
-  `ID` bigint(100) NOT NULL,
-  `Nombre` varchar(250) NOT NULL,
-  `Apellido` varchar(255) NOT NULL,
-  `Usuario` varchar(70) NOT NULL,
-  `ltrabajo` varchar(250) NOT NULL,
-  `cdt` varchar(255) NOT NULL,
-  `Rango` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Volcado de datos para la tabla `usuarios`
---
-
-INSERT INTO `usuarios` (`ID`, `Nombre`, `Apellido`, `Usuario`, `ltrabajo`, `cdt`, `Rango`) VALUES
-(60, 'admintrador', '01', 'admin01', 'Fulfillment', 'Odonnell', 'Administrador');
-
 --
 -- Índices para tablas volcadas
 --
@@ -222,6 +222,12 @@ ALTER TABLE `retiros`
   ADD PRIMARY KEY (`id_retiro`);
 
 --
+-- Indices de la tabla `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`ID`);
+
+--
 -- Indices de la tabla `solicitud_donacion`
 --
 ALTER TABLE `solicitud_donacion`
@@ -232,12 +238,6 @@ ALTER TABLE `solicitud_donacion`
 --
 ALTER TABLE `solicitud_retiros`
   ADD PRIMARY KEY (`id_tarea_retiros`);
-
---
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`ID`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -268,6 +268,12 @@ ALTER TABLE `retiros`
   MODIFY `id_retiro` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `ID` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+
+--
 -- AUTO_INCREMENT de la tabla `solicitud_donacion`
 --
 ALTER TABLE `solicitud_donacion`
@@ -278,12 +284,6 @@ ALTER TABLE `solicitud_donacion`
 --
 ALTER TABLE `solicitud_retiros`
   MODIFY `id_tarea_retiros` bigint(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `ID` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
