@@ -824,6 +824,7 @@ def Reporte_donacion(rowi):
                 cur.execute(sql)
                 data = cur.fetchall()
                 cur.close()
+                return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               if 'valor_donacion' in session:
                 session.pop('filtro_donacion')
