@@ -1,30 +1,30 @@
+import os
+import subprocess
+from os.path import join, dirname, realpath
+
+subprocess.call("apt-get update",shell=True)
+subprocess.call("apt-get -y install libsasl2-dev python-dev libldap2-dev libssl-dev",shell=True)
+subprocess.call("pip install python-ldap pyopenssl",shell=True)
+
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, flash, session, make_response, Response, jsonify
 import io
 import csv
 import json
-import os
-from os.path import join, dirname, realpath
 from fpdf import FPDF
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 import hashlib
 import qrcode
-from app.app.connect import connectBD
 import pymysql
+import ldap
+from app.app.connect import connectBD
 
-# db_connection = pymysql.connect(host=mysql_host, port=mysql_port, user=mysql_user, passwd=mysql_pass, db=mysql_db) 
 
 app = Blueprint("app",__name__)
 
+UPLOAD_FOLDER = 'app/app/file/'
 
-UPLOAD_FOLDER = '/static/file/'
-app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
-
-#Direccion Principal 
-
-@app.route('/ping')
-def ping():
-    return 'pong'
+#FUNCIONES
 
 #Direccion Principal 
 @app.route('/')
@@ -34,8 +34,9 @@ def Index():
       return redirect('/home')
     else:
       return render_template('index.html')
-  except:
-      return render_template('index.html')
+  except Exception as error:
+    flash(str(error))
+    return render_template('index.html')
 
 #Valida de usuario
 @app.route('/validar_usuario', methods=['POST'])
@@ -67,27 +68,37 @@ def validarusuaro():
         flash('Usuario o Clave Incorreto')
         return redirect('/')
 
-  except:
+  except Exception as error:
+    flash(str(error))
     return redirect('/')  
 
 
 #Pagina Principal
 @app.route('/home',methods=['POST','GET'])
 def home():
-  if 'FullName' in session:
-    return render_template('home.html',Datos = session)
-  else:
-    flash("Inicia Sesion")
-    return render_template('index.html')
+  try:
+    if 'FullName' in session:
+      return render_template('home.html',Datos = session)
+    else:
+      flash("Inicia Sesion")
+      return render_template('index.html')
+
+  except Exception as error:
+    flash(str(error))
+    return redirect('/') 
 
 #formulario ordenes no Procesables 
 @app.route('/Retiros',methods=['POST','GET'])
 def No_procesable_form():
-  if 'FullName' in session:
-    return render_template('form/retiros.html',Datos = session)
-  else:
-    flash("Inicia Sesion")
-    return render_template('index.html')
+  try:
+    if 'FullName' in session:
+      return render_template('form/retiros.html',Datos = session)
+    else:
+      flash("Inicia Sesion")
+      return render_template('index.html')
+  except Exception as error:
+    flash(str(error))
+    return redirect('/') 
 
 #Redirigie a el Formulario de Registro de Usuarios 
 @app.route('/registro',methods=['POST','GET'])
@@ -98,9 +109,9 @@ def registro():
     else:
       flash("Acseso Denegado")
     return render_template('index.html')
-  except:
-    flash("Inicia Secion")
-    return render_template('index.html')
+  except Exception as error:
+    flash(str(error))
+    return redirect('/')
 
 #Registro de Usuarios 
 @app.route('/registrar',methods=['POST'])
@@ -117,7 +128,7 @@ def registrar():
         db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
         cur= db_connection.cursor()
         # Read a single record
-        sql = "SELECT * FROM roles WHERE `Usuario`=%s Limit 1"
+        sql = "SELECT * FROM `roles` WHERE `Usuario`=%s Limit 1"
         cur.execute(sql, (usuario,))
         data = cur.fetchone()
         cur.close()
@@ -160,7 +171,7 @@ def registro_s_s():
         retiros = cur.fetchone()
         if retiros != None:
           if int(retiros[4]) > int(retiros[7]): 
-            return render_template('actualizacion/finalizado.html',Datos = session,base="Retiros",meli=meli)
+            return render_template('form/retiros.html',Datos = session,base="Retiros",meli=meli)
         link = connectBD()
         db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
         cur= db_connection.cursor()
@@ -170,7 +181,7 @@ def registro_s_s():
         donacion = cur.fetchone()
         if donacion != None:
           if int(donacion[3]) > int(donacion[7]): 
-            return render_template('actualizacion/finalizado.html',Datos = session,base="Donacion",meli=meli)
+            return render_template('form/retiros.html',Datos = session,base="Donacion",meli=meli)
         link = connectBD()
         db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
         cur= db_connection.cursor()
@@ -180,14 +191,14 @@ def registro_s_s():
         ingram = cur.fetchone()
         if ingram != None:
           if int(ingram[3]) > int(ingram[5]): 
-            return render_template('actualizacion/finalizado.html',Datos = session,base="Ingram",meli=meli)
+            return render_template('form/retiros.html',Datos = session,base="Ingram",meli=meli)
         flash("No hay Tareas Pendientes")
         return render_template('form/retiros.html',Datos = session)
       else:
         flash("No has enviado un registro")
         return render_template('form/retiros.html',Datos = session)
-  except:
-    flash("Llena todos los Campos Correctamente")
+  except Exception as error: 
+    flash(str(error))
     return render_template('form/retiros.html',Datos = session)
 # Registro de Salidas Service Center
 
@@ -229,7 +240,7 @@ def registro_ubicacion(meli,base):
             db_connection.commit()
             cur.close()
             session['ubicacionretiro']=ubicacion
-            return render_template('actualizacion/finalizado.html',Datos = session)
+            return render_template('form/retiros.html',Datos = session)
         elif base == "Donacion":
           if int(donacion[3]) > int(donacion[7]): 
             numeroOla=donacion[1]
@@ -263,7 +274,7 @@ def registro_ubicacion(meli,base):
             db_connection.commit()
             cur.close()
             session['ubicacionretiro']=ubicacion
-            return render_template('actualizacion/finalizado.html',Datos = session)
+            return render_template('form/retiros.html',Datos = session)
         elif base == "Ingram":
           if int(ingram[3]) > int(ingram[5]): 
             numeroOla=ingram[1]
@@ -297,21 +308,25 @@ def registro_ubicacion(meli,base):
             db_connection.commit()
             cur.close()
             session['ubicacionretiro']=ubicacion
-            return render_template('actualizacion/finalizado.html',Datos = session)
+            return render_template('form/retiros.html',Datos = session)
         flash("No hay Tareas Pendientes")
         return render_template('form/retiros.html',Datos = session)
       else:
         flash("No has enviado un registro")
         return render_template('form/retiros.html',Datos = session)
-  except:
-    flash("Llena todos los Campos Correctamente")
+  except Exception as error: 
+    flash(str(error))
     return render_template('form/retiros.html',Datos = session)
 
 #Cerrar Session
 @app.route('/logout')
 def Cerrar_session():
-  session.clear()
-  return redirect('/')
+  try:
+    session.clear()
+    return redirect('/')
+  except Exception as error: 
+    flash(str(error))
+    return redirect('/')
 
 #Reportes
 @app.route('/Reporte_Retiros/<rowi>',methods=['POST','GET'])
@@ -737,8 +752,8 @@ def Reporte_retiros(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_retiros.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
@@ -848,7 +863,6 @@ def Reporte_donacion(rowi):
                 cur.execute(sql)
                 data = cur.fetchall()
                 cur.close()
-                return render_template('reportes/t_donacion.html',Datos = session,Infos =data)
             else:
               if 'valor_donacion' in session:
                 session.pop('filtro_donacion')
@@ -1100,8 +1114,8 @@ def Reporte_donacion(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_donacion.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
@@ -1459,13 +1473,14 @@ def Reporte_ingram(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_ingram.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
 @app.route('/csvretiros',methods=['POST','GET'])
 def crear_csvretiros():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -1554,10 +1569,13 @@ def crear_csvretiros():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"Reportre_Recibo-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 
 @app.route('/csvdonacion',methods=['POST','GET'])
 def crear_csvdonacion():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -1646,10 +1664,13 @@ def crear_csvdonacion():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"Donacion-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 
 @app.route('/csvingram',methods=['POST','GET'])
 def crear_ccsvingram():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -1738,6 +1759,8 @@ def crear_ccsvingram():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"Ingram-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 #Solicitudes
 @app.route('/Solicitudes_Retiros/<rowi>',methods=['POST','GET'])
@@ -2044,8 +2067,8 @@ def solicitudes_retiros(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_solicitudretiros.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
@@ -2366,8 +2389,8 @@ def solicitud_donacion(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_solicituddonacion.html',Datos = session,Infos =data)         
-  except:
-    flash("Inicia Secion")
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
@@ -2688,12 +2711,14 @@ def solicitud_ingram(rowi):
             data = cur.fetchall()
             cur.close()
             return render_template('reportes/t_solicitudingram.html',Datos = session,Infos =data)         
-  except:
+  except Exception as error: 
+    flash(str(error))
     return render_template('index.html')
 
 
 @app.route('/csvsolicitudretiros',methods=['POST','GET'])
 def crear_csvsolicitudretiros():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -2785,10 +2810,13 @@ def crear_csvsolicitudretiros():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"solicitud_retiros-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 
 @app.route('/csvsolicituddonacion',methods=['POST','GET'])
 def crear_csvsolicituddonacion():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -2880,10 +2908,13 @@ def crear_csvsolicituddonacion():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment;filename= Solicitud_Donacion-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 
 @app.route('/csvsolicitudingram',methods=['POST','GET'])
 def crear_ccsvsolicitudingram():
+  try:
     site=session['SiteName']
     row1 = 0
     row2 =5000
@@ -2974,50 +3005,57 @@ def crear_ccsvsolicitudingram():
     response = make_response(datos)
     response.headers["Content-Disposition"] = "attachment; filename="+"Solicitud_Ingram-"+str(datetime.today())+".csv"; 
     return response
+  except Exception as error: 
+    flash(str(error))
 
 #PDF Ubicacion
 @app.route('/pdf/<ubicacion>',methods=['POST','GET'])
 def pdf_template(ubicacion):
-  
-        qr =  ubicacion
-        img =qrcode.make(qr)
-        file =open('static/img/qr.png','wb')
-        img.save(file)
-        lugar = 'De: '+session['FcName']+' | '+session['SiteName']
-        facility = session['FcName']
-        site = session['SiteName']
-        today= datetime.today()
- 
-        pdf = FPDF(orientation = 'P',unit = 'mm',format= (128,60))
-        pdf.add_page()
-         
-        page_width = pdf.w - 2 * pdf.l_margin
-         
-        pdf.ln(5)
-        pdf.image('static/img/MercadoLibre_logo.png', x= 5, y = 5, w=25, h = 10)
-        pdf.set_font('Times','B',30)
-        pdf.set_text_color(0,47,109)  
-        pdf.text(x = 35, y = 15 ,txt =  "Withdrawal System" )
-        pdf.ln(80)
-        
-        pdf.image('static/img/qr.png', x= 10, y = 20, w=40, h = 40)
+  try:
+    qr =  ubicacion
+    img =qrcode.make(qr)
+    file =open('app/static/img/qr.png','wb')
+    img.save(file)
+    lugar = 'De: '+session['FcName']+' | '+session['SiteName']
+    facility = session['FcName']
+    site = session['SiteName']
+    today= datetime.today()
 
-        pdf.set_font('Times','B',12) 
-        
-        pdf.set_text_color(0,0,0) 
-        pdf.text( x= 70, y = 27, txt = str(today))
-        pdf.text( x= 70, y = 37, txt = "Ubicacion:")
-        pdf.text( x= 70, y = 47, txt = qr)
+    pdf = FPDF(orientation = 'P',unit = 'mm',format= (128,60))
+    pdf.add_page()
+     
+    page_width = pdf.w - 2 * pdf.l_margin
+     
+    pdf.ln(5)
+    pdf.image('app/static/img/MercadoLibre_logo.png', x= 5, y = 5, w=25, h = 10)
+    pdf.set_font('Times','B',30)
+    pdf.set_text_color(0,47,109)  
+    pdf.text(x = 35, y = 15 ,txt =  "Withdrawal System" )
+    pdf.ln(80)
 
-        return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
+    pdf.image('app/static/img/qr.png', x= 10, y = 20, w=40, h = 40)
 
+    pdf.set_font('Times','B',12) 
+
+    pdf.set_text_color(0,0,0) 
+    pdf.text( x= 70, y = 27, txt = str(today))
+    pdf.text( x= 70, y = 37, txt = "Ubicacion:")
+    pdf.text( x= 70, y = 47, txt = qr)
+
+    return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'Atachment;filename=Ubicacion-'+qr+'.pdf'})
+  except Exception as error: 
+    flash(str(error))
 
 @app.route('/files',methods=['POST','GET'])
 def Files_():
-  if 'FullName' in session:
-    return render_template('form/files.html',Datos=session)
-  else:
-    return redirect('/')
+  try:
+    if 'FullName' in session:
+      return render_template('form/files.html',Datos=session)
+    else:
+      return redirect('/')
+  except Exception as error: 
+    flash(str(error))
+
 
 
 @app.route('/CargarDatos',methods=['POST','GET'])
@@ -3030,8 +3068,7 @@ def uploadFiles():
       
       if base == 'Donacion':
         file.save(os.path.join(UPLOAD_FOLDER, "donacioncsv.csv"))
-        # data = csv.reader(open('static/file/donacioncsv.csv))
-        with open('static/file/donacioncsv.csv',"r", encoding="utf8") as csv_file:
+        with open('app/app/file/donacioncsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3052,8 +3089,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Retiros':
         file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
-        # data = csv.reader(open('static/file/retiroscsv.csv'))
-        with open('static/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
+        with open('app/app/file/retiroscsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3075,8 +3111,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Ingram':
         file.save(os.path.join(UPLOAD_FOLDER, "ingramcsv.csv"))
-        # data = csv.reader(open('static/file/ingramcsv.csv'))
-        with open('static/file/ingramcsv.csv',"r", encoding="utf8") as csv_file:
+        with open('app/app/file/ingramcsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3098,8 +3133,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Inventario Seller':
         file.save(os.path.join(UPLOAD_FOLDER, "inventariosellercsv.csv"))
-        # data = csv.reader(open('static/file/inventariosellercsv.csv'))
-        with open('static/file/inventariosellercsv.csv',"r", encoding="utf8") as csv_file:
+        with open('app/app/file/inventariosellercsv.csv',"r", encoding="utf8") as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3121,9 +3155,10 @@ def uploadFiles():
         return redirect('/files')
     else:
       return redirect('/')
-  except:
-    flash('Ocurrió un error, Por favor Revisa bien los datos y vuelve a intentarlo.')
+  except Exception as error:
+    flash(str(error))
     return redirect('/files')
+
 
 
 @app.route('/dashboard',methods=['POST','GET'])
@@ -3243,5 +3278,6 @@ def dash():
       ingramcerrado = cur.fetchone()
       cur.close()
       return render_template('dashboard.html',Datos=session,retiropendientes=retiropendientes,retiroenproceso=retiroenproceso,retirocerrado=retirocerrado,donacionpendientes=donacionpendientes,donacionenproceso=donacionenproceso,donacionocerrado=donacionocerrado,ingrampendientes=ingrampendientes,ingramenproceso=ingramenproceso,ingramcerrado=ingramcerrado)
-  except:
+  except Exception as error:
+    flash(str(error))
     return redirect('/')
