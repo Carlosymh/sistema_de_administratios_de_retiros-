@@ -160,6 +160,44 @@ def registro_s_s():
         retiros = cur.fetchone()
         if retiros != None:
           if int(retiros[4]) > int(retiros[7]): 
+            return render_template('actualizacion/finalizado.html',Datos = session,base="Retiros",meli=meli)
+        link = connectBD()
+        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+        cur= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM solicitud_donacion WHERE SKU = %s AND status != \'Cerrado\' AND Site =%s LIMIT 1 "
+        cur.execute(sql, (meli,session['SiteName']))
+        donacion = cur.fetchone()
+        if donacion != None:
+          if int(donacion[3]) > int(donacion[7]): 
+            return render_template('actualizacion/finalizado.html',Datos = session,base="Donacion",meli=meli)
+        link = connectBD()
+        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+        cur= db_connection.cursor()
+        # Read a single record
+        sql = "SELECT * FROM ingram WHERE SKU = %s AND estatus != \'Cerrado\' AND Site =%s LIMIT 1 "
+        cur.execute(sql, (meli,session['SiteName']))
+        ingram = cur.fetchone()
+        if ingram != None:
+          if int(ingram[3]) > int(ingram[5]): 
+            return render_template('actualizacion/finalizado.html',Datos = session,base="Ingram",meli=meli)
+        flash("No hay Tareas Pendientes")
+        return render_template('form/retiros.html',Datos = session)
+      else:
+        flash("No has enviado un registro")
+        return render_template('form/retiros.html',Datos = session)
+  except:
+    flash("Llena todos los Campos Correctamente")
+    return render_template('form/retiros.html',Datos = session)
+# Registro de Salidas Service Center
+
+@app.route('/RegistrarUbicacion/<meli>/<base>',methods=['POST'])
+def registro_ubicacion(meli,base):
+  try:
+      if request.method == 'POST':
+        ubicacion = request.form['Ubicacion']
+        if base == "Retiros":
+          if int(retiros[4]) > int(retiros[7]): 
             numeroOla=retiros[1]
             ubicacion =  'R-'+meli+'-'+str(retiros[3])
             now= datetime.now()
@@ -192,14 +230,7 @@ def registro_s_s():
             cur.close()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
-        link = connectBD()
-        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-        cur= db_connection.cursor()
-        # Read a single record
-        sql = "SELECT * FROM solicitud_donacion WHERE SKU = %s AND status != \'Cerrado\' AND Site =%s LIMIT 1 "
-        cur.execute(sql, (meli,session['SiteName']))
-        donacion = cur.fetchone()
-        if donacion != None:
+        elif base == "Donacion":
           if int(donacion[3]) > int(donacion[7]): 
             numeroOla=donacion[1]
             ubicacion =  'D-'+meli+'-'+str(donacion[10])
@@ -233,14 +264,7 @@ def registro_s_s():
             cur.close()
             session['ubicacionretiro']=ubicacion
             return render_template('actualizacion/finalizado.html',Datos = session)
-        link = connectBD()
-        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
-        cur= db_connection.cursor()
-        # Read a single record
-        sql = "SELECT * FROM ingram WHERE SKU = %s AND estatus != \'Cerrado\' AND Site =%s LIMIT 1 "
-        cur.execute(sql, (meli,session['SiteName']))
-        ingram = cur.fetchone()
-        if ingram != None:
+        elif base == "Ingram":
           if int(ingram[3]) > int(ingram[5]): 
             numeroOla=ingram[1]
             ubicacion =  'I-'+meli+'-'+str(ingram[9])

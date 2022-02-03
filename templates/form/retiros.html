@@ -30,11 +30,21 @@
     {% block body%}
         <div class="fondo"></div>
         <section>
+            {%if base%}
+            <form action="/RegistrarUbicacion/{{meli}}/{{base}}" method="POST" >
+                <h2> Retiro</h2>
+                    <h2>Tipo de Tarea : {{base}}</h2>
+                    <label for="Ubicacion">Ubicacion</label>
+                    <input type="text" name="Ubicación" placeholder="escanea meli">
+                <input type="submit" class="btn" name="enviar" value="enviar" >
+            </form>
+            {%else%}
             <form action="/ubicacion" method="POST" >
                 <h2> Retiro</h2>
                     <label for="meli">Meli</label>
                     <input type="text" name="meli" placeholder="escanea meli">
                 <input type="submit" class="btn" name="enviar" value="enviar" >
             </form>
+            {%endif%}
         </section>
 {% endblock %}
