@@ -207,7 +207,14 @@ def registro_ubicacion(meli,base):
   try:
       if request.method == 'POST':
         ubicacion = request.form['Ubicacion']
-        if base == "Retiros":
+        if base == "Retiros":  
+          link = connectBD()
+          db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+          cur= db_connection.cursor()
+          # Read a single record
+          sql = "SELECT * FROM solicitud_retiros WHERE meli = %s AND status != \'Cerrado\' AND Site =%s LIMIT 1"
+          cur.execute(sql, (meli,session['SiteName']))
+          retiros = cur.fetchone()
           if int(retiros[4]) > int(retiros[7]): 
             numeroOla=retiros[1]
             ubicacion =  'R-'+meli+'-'+str(retiros[3])
@@ -242,6 +249,13 @@ def registro_ubicacion(meli,base):
             session['ubicacionretiro']=ubicacion
             return render_template('form/retiros.html',Datos = session)
         elif base == "Donacion":
+          link = connectBD()
+          db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+          cur= db_connection.cursor()
+          # Read a single record
+          sql = "SELECT * FROM solicitud_donacion WHERE SKU = %s AND status != \'Cerrado\' AND Site =%s LIMIT 1 "
+          cur.execute(sql, (meli,session['SiteName']))
+          donacion = cur.fetchone()
           if int(donacion[3]) > int(donacion[7]): 
             numeroOla=donacion[1]
             ubicacion =  'D-'+meli+'-'+str(donacion[10])
@@ -276,6 +290,13 @@ def registro_ubicacion(meli,base):
             session['ubicacionretiro']=ubicacion
             return render_template('form/retiros.html',Datos = session)
         elif base == "Ingram":
+          link = connectBD()
+          db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+          cur= db_connection.cursor()
+          # Read a single record
+          sql = "SELECT * FROM ingram WHERE SKU = %s AND estatus != \'Cerrado\' AND Site =%s LIMIT 1 "
+          cur.execute(sql, (meli,session['SiteName']))
+          ingram = cur.fetchone()
           if int(ingram[3]) > int(ingram[5]): 
             numeroOla=ingram[1]
             ubicacion =  'I-'+meli+'-'+str(ingram[9])
