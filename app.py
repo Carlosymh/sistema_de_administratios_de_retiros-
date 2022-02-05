@@ -156,7 +156,7 @@ def registrar():
     flash(str(error))
     return render_template('registro.html',Datos =session)
 
-# Registro de Salidas Service Center
+# Registro de meli
 @app.route('/ubicacion',methods=['POST'])
 def registro_s_s():
   try:
@@ -200,8 +200,8 @@ def registro_s_s():
   except Exception as error: 
     flash(str(error))
     return render_template('form/retiros.html',Datos = session)
-# Registro de Salidas Service Center
 
+# Registro de Ubicacion
 @app.route('/RegistrarUbicacion/<meli>/<base>',methods=['POST'])
 def registro_ubicacion(meli,base):
   try:
