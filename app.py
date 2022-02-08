@@ -87,7 +87,7 @@ def home():
     flash(str(error))
     return redirect('/') 
 
-#formulario ordenes no Procesables 
+#proceso de retiros
 @app.route('/Retiros',methods=['POST','GET'])
 def No_procesable_form():
   try:
