@@ -2,6 +2,7 @@ import os
 import subprocess
 from os.path import join, dirname, realpath
 
+# -*- coding: utf-8 -*-
 subprocess.call("apt-get update",shell=True)
 subprocess.call("apt-get -y install libsasl2-dev python-dev libldap2-dev libssl-dev",shell=True)
 subprocess.call("pip install python-ldap pyopenssl",shell=True)
@@ -3097,7 +3098,7 @@ def uploadFiles():
               cur= db_connection.cursor()
               # Create a new record
               sql = "INSERT INTO solicitud_donacion (numero_ola,  SKU, Cantidad_Solicitada, costo_unitario, suma_de_gmv_total, descripcion, cantidad_susrtida,  fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],0,now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5].decode('utf8'),0,now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -3118,7 +3119,7 @@ def uploadFiles():
               cur= db_connection.cursor()
               # Create a new record
               sql = "INSERT INTO solicitud_retiros (nuemro_de_ola,  meli, fecha_de_entrega, cantidad_solizitada, QTY_DISP_WMS, Descripción, Fecha_de_creacion,  facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], row[5].decode('utf8'),now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -3140,7 +3141,7 @@ def uploadFiles():
               cur= db_connection.cursor()
               # Create a new record
               sql = "INSERT INTO ingram (numero_ola,  SKU, Cantidad_Solicitada, cantidad_disponible, descripcion, fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4],now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4].decode('utf8'),now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -3162,7 +3163,7 @@ def uploadFiles():
               cur= db_connection.cursor()
               # Create a new record
               sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[1], row[2], row[3], row[4], row[5],now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[1], row[2], row[3].decode('utf8'), row[4].decode('utf8'), row[5],now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
