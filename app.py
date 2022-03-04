@@ -3087,7 +3087,7 @@ def uploadFiles():
       
       if base == 'Donacion':
         file.save(os.path.join(UPLOAD_FOLDER, "donacioncsv.csv"))
-        with open('app/app/file/donacioncsv.csv',"rv", encoding="utf8", errors='ignore') as csv_file:
+        with open('app/app/file/donacioncsv.csv',"r", encoding="utf8", errors='ignore') as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3114,7 +3114,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Retiros':
         file.save(os.path.join(UPLOAD_FOLDER, "retiroscsv.csv"))
-        with open('app/app/file/retiroscsv.csv',"rv", encoding="utf8", errors='ignore') as csv_file:
+        with open('app/app/file/retiroscsv.csv',"r", encoding="utf8", errors='ignore') as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3142,7 +3142,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Ingram':
         file.save(os.path.join(UPLOAD_FOLDER, "ingramcsv.csv"))
-        with open('app/app/file/ingramcsv.csv',"rv", encoding="utf8", errors='ignore') as csv_file:
+        with open('app/app/file/ingramcsv.csv',"r", encoding="utf8", errors='ignore') as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
@@ -3170,7 +3170,7 @@ def uploadFiles():
         return redirect('/files')
       elif base == 'Inventario Seller':
         file.save(os.path.join(UPLOAD_FOLDER, "inventariosellercsv.csv"))
-        with open('app/app/file/inventariosellercsv.csv',"rv", encoding="utf8", errors='ignore') as csv_file:
+        with open('app/app/file/inventariosellercsv.csv',"r", encoding="utf8", errors='ignore') as csv_file:
           data=csv.reader(csv_file, delimiter=',')
           i=0
           for row in data:
