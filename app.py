@@ -3098,13 +3098,13 @@ def uploadFiles():
               db_connection.names="utf8mb4" 
               db_connection.set_character_set('utf8mb4')
               cur= db_connection.cursor()
-              cur = db_connection.cursor()
-              cur.execute("SET NAMES utf8mb4;")
-              cur.execute("SET CHARACTER SET utf8mb4;")
-              cur.execute("SET character_set_connection=utf8mb4;")
+              cur.execute("SET NAMES utf8mb4")
+              cur.execute("SET CHARACTER SET utf8mb4")
+              cur.execute("SET character_set_connection=utf8mb4")
               # Create a new record
+              descr=str(row[5])
               sql = "INSERT INTO solicitud_donacion (numero_ola,  SKU, Cantidad_Solicitada, costo_unitario, suma_de_gmv_total, descripcion, cantidad_susrtida,  fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], unicode(row[5], errors='replace'),0,now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], unicode(descr, errors='replace'),0,now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -3125,13 +3125,13 @@ def uploadFiles():
               db_connection.names="utf8mb4" 
               db_connection.set_character_set('utf8mb4')
               cur= db_connection.cursor()
-              cur = db_connection.cursor()
-              cur.execute("SET NAMES utf8mb4;")
-              cur.execute("SET CHARACTER SET utf8mb4;")
-              cur.execute("SET character_set_connection=utf8mb4;")
+              cur.execute("SET NAMES utf8mb4")
+              cur.execute("SET CHARACTER SET utf8mb4")
+              cur.execute("SET character_set_connection=utf8mb4")
               # Create a new record
+              descr=str(row[5])
               sql = "INSERT INTO solicitud_retiros (nuemro_de_ola,  meli, fecha_de_entrega, cantidad_solizitada, QTY_DISP_WMS, Descripción, Fecha_de_creacion,  facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], unicode(row[5], errors='replace'),now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3], row[4], unicode(descr, errors='replace'),now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
@@ -3153,19 +3153,19 @@ def uploadFiles():
               db_connection.names="utf8mb4" 
               db_connection.set_character_set('utf8mb4')
               cur= db_connection.cursor()
-              cur = db_connection.cursor()
-              cur.execute("SET NAMES utf8mb4;")
-              cur.execute("SET CHARACTER SET utf8mb4;")
-              cur.execute("SET character_set_connection=utf8mb4;")
+              cur.execute("SET NAMES utf8mb4")
+              cur.execute("SET CHARACTER SET utf8mb4")
+              cur.execute("SET character_set_connection=utf8mb4")
               # Create a new record
+              descr=str(row[4])
               sql = "INSERT INTO ingram (numero_ola,  SKU, Cantidad_Solicitada, cantidad_disponible, descripcion, fecha_de_solicitud, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[0], row[1], row[2], row[3],unicode(row[4],errors='replace'),now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[0], row[1], row[2], row[3],unicode(descr,errors='replace'),now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
               cur.close()
             i+=1
-        
+            
         flash(str(i)+' Registros Exitoso')
         return redirect('/files')
       elif base == 'Inventario Seller':
@@ -3178,16 +3178,17 @@ def uploadFiles():
               now= datetime.now()
               link = connectBD()
               db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4], charset="utf8mb4", init_command="set names utf8mb4")
-              db_connection.names="utf8mb4"
+              db_connection.names="utf8mb4" 
               db_connection.set_character_set('utf8mb4')
               cur= db_connection.cursor()
-              cur = db_connection.cursor()
-              cur.execute("SET NAMES utf8mb4;")
-              cur.execute("SET CHARACTER SET utf8mb4;")
-              cur.execute("SET character_set_connection=utf8mb4;")
+              cur.execute("SET NAMES utf8mb4")
+              cur.execute("SET CHARACTER SET utf8mb4")
+              cur.execute("SET character_set_connection=utf8mb4")
               # Create a new record
+              seller=str(row[3])
+              holding=str(row[4])
               sql = "INSERT INTO inventario_seller (INVENTORY_ID,  ADDRESS_ID_TO, Seller, Holding, Cantidad, fecha_de_actualizacion, facility, Site) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-              cur.execute(sql,(row[1], row[2],unicode(row[3], errors='replace'),unicode(row[4], errors='replace'), row[5],now,session['FcName'],session['SiteName'],))
+              cur.execute(sql,(row[1], row[2],unicode(seller, errors='replace'),unicode(holding, errors='replace'), row[5],now,session['FcName'],session['SiteName'],))
               # connection is not autocommit by default. So you must commit to save
               # your changes.
               db_connection.commit()
