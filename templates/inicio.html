@@ -23,15 +23,14 @@
     {%endif%}
     {%endwith%}
     <section class="titulo"><img src="/static/img/Logo.png" alt=""><h1>Withdrawal System</h1></section>
-    <div class="container"> 
-        <form action="/validar_usuario" method="POST">
-            <p>¡Hola! Para seguir, ingresa tu  usuario</p>
-            <label for="user"> Ingresa tu Usuario <i class="fas fa-user-tie"></i> </label>
-            <input type="text" name="user" id="user"  class="user_inicio" required>
+    <div class="container-validacion"> 
+        <form action="/validar_contrasena/{{user}}" method="POST">
+            <p>¡Hola, {{username}}, ingresa tu contraseña</p>
+            <div><i class="fas fa-user-tie"></i><p>{{user}}</p><a href="/" class="userlink">X</a></div>
+            <label for="user"> Ingresa tu Contraseña <i class="fas fa-unlock-alt"></i> </label>
+            <input type="password" name="clave" id="clave" class="user_inicio" required>
             <input type="submit"  class="btn" value="Continuar">
         </form>
-    </div> 
+    </div>
 </body>
 </html>
-
-

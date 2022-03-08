@@ -11,45 +11,56 @@ body{
 section{
     background: #fff159 ;
     margin: 0;
+    padding: 0.1rem 0;
+    font-size: 3vh;
     color: #2f3476;
-    height: 350px;
+    height: 40vh;
     display: flex;
+    justify-content: center;
 }
 section img{
-    width: 100px;
-    height: 50px;
-    margin-top: 30PX;
-    margin-left: 10px;
+    width: 15vh;
+    height: 10vh;
+    margin-top: 8vh;
+    right: 1vh;
 }
-section .titulo p{
-    width: 50%;
-    font-size: 25PX;
-    margin-top: 25PX;
-    margin-left: 5px;
+section h1{
+    text-align: left;
+    width: 80%;
+    font-size: 9vh;
+    margin-top: 8vh;
+    margin-left: 1vh;
     font-family: 'Harabara',Verdana;
 }
-.container-contraseña{
-    position: relative;
-    margin: auto;
-    margin-top: -150px;
-    background: #fff;
-    width: 400px;
-    height: 320px;
-    display:flexbox;
-    box-shadow: 0 0 0.2vh  #000;
-    border-radius: 5px;
-    text-align: center;
-}
+
 .container{
     position: relative;
     margin: auto;
-    margin-top: -150px;
+    margin-top: -15vh;
     background: #fff;
     width: 400px;
-    height: 450px;
+    height: 325px;
     display:flexbox;
-    box-shadow: 0 0 2px  #000;
-    border-radius: 5px;
+    box-shadow: 0 0 0.2vh  #000;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+}
+.container-validacion{
+    position: relative;
+    margin: auto;
+    margin-top: -15vh;
+    background: #fff;
+    width: 400px;
+    height: 400px;
+    display:flexbox;
+    box-shadow: 0 0 0.2vh  #000;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
     text-align: center;
 }
 
@@ -61,58 +72,87 @@ form{
     justify-content: center;
 
 }
+.container-validacion form div{
+
+    width: 95%;
+    height: 55px;
+    display: flex;
+    margin: auto;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px ;
+    box-shadow: 0 0 2px #000;
+    border-radius: 5px;
+    color: #bbb;
+    margin-bottom: 10px;
+
+}
+
+.container-validacion form div p{
+    color: #bbb;
+
+}
+.container-validacion form div a {
+
+    color: #bbb;
+    text-decoration: none;
+    padding: 5px;
+    box-shadow: 0 0 3px #aaa;
+    border-radius: 50% ;
+
+}
 
 form p{
     font-family: Verdana, Tahoma, sans-serif;
-    font-size: 25px;
+    font-size: 3vh;
     color: #000;
 
 }
 
 form label{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 15px;
+    font-size: 2vh;
     color: rgb(95, 92, 92);
 }
 
 input{
-    margin-bottom: 20px;
-    margin-top: 10px;
-    font-size: 20px;
+    margin-bottom: 2.5vh;
+    margin-top: 1vh;
+    font-size: 2vh;
 }
 
 input.user_inicio{
-    margin-bottom: 20px;
-    margin-top: 10px;
-    font-size: 15px;
-    padding: 10px;
+    margin-bottom: 2.5vh;
+    margin-top: 1vh;
+    font-size: 2vh;
+    padding: 2vh;
     border-radius: 5px;
     border:none;
     outline: none;
-    box-shadow: 0 0 2px #000;
+    box-shadow: 0 0 0.2vh #000;
 }
 input.user_inicio:focus{
-    box-shadow: 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa, 0 0 2px #3483fa;
+    box-shadow: 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa, 0 0 0.5vh #3483fa;
 }
 .btn{
     font-family: Verdana, Tahoma, sans-serif;
     width: 100%;
-    font-size: 20px;
-    padding:10px 5px;
+    font-size: 2vh;
+    padding:2vh 1vh;
     background: #3483fa;
     color: #fff;
     font-weight: bolder;
     border:none;
     border-radius: 5px;
     margin: auto;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
     transition: 0.5s;
 }
 
 .btn:hover{
     font-family: Verdana, Tahoma, sans-serif;
     width: 100%;
-    font-size: 20px;
+    font-size: 2vh;
     font-weight: bolder;
     background: #256ad3;
     color: #fff;
@@ -120,50 +160,76 @@ input.user_inicio:focus{
 }
 
 a.linkedin{
-    display: block;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: 'Harabara',Verdana;
     text-decoration: none;
-    color: rgb(177, 175, 175);
-    font-size: 15px;
-    margin: 40px auto auto auto;
+    color: rgb(214, 206, 206);
+    font-size: 1.5vh;
+    margin-top: 4vh;
+    margin: auto;
     transition: 0.5s;
 }
 a.linkedin:hover{
-    color: rgb(82, 100, 129);
+    font-family: 'Harabara',Verdana;
+    color: rgb(132, 181, 255);
     transition: 0.5s;
 }
-.user_content{
-    display: flex;
-    width: 95%;
-    height: 30px;
-    margin: auto auto 15px auto  ;
-    box-shadow: 0 0 2px #000;
-    border-radius: 15px;
-    justify-content: space-between;
+a.crearcuenta{
+    font-family: Verdana, Tahoma, sans-serif;
+    text-decoration: none;
+    width: 100%;
+    font-size: 2vh;
+    padding:2vh 1vh;
+    background: none;
+    color: #3483fa;
+    font-weight: bolder;
+    border-radius: 5px;
+    margin: auto;
+    margin-bottom: 2vh;
+    transition: 0.5s;
 }
-.user_content p{
-    margin: auto auto auto 10px;
-    font-size: 20px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+a.crearcuenta:hover{
+    background: #3483fa1a;
+    transition: 0.5s;
 }
-.user_content i{
-    background: #eee;
-    color: #000;
-    margin:auto 0 auto 3px;
-    font-size: 15px;
-    padding: 7px;
-    border-radius: 50%;
+a.help{
+    display: block;
+    width: 60VH;
+    height: 2VH;
+    font-family: Verdana, Tahoma, sans-serif;
+    text-decoration: none;
+    font-size: 2vh;
+    position: relative;
+    margin: auto;
+    margin-top: 0;
+    color: #3483fa;
+    font-weight: bolder;
+    padding: 4vh 0;
+    background: #fff;
+    box-shadow: 0 0 0.2vh  #000;
+    text-align: center;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    transition: 0.5s;
+}
+a.help:hover{
+    background: rgba(238, 238, 238, 0.521);
+    transition: 0.5s;
 }
 
-.user_content  a{
-    margin:auto 3px auto auto;
-    color: #000;
-    text-decoration: none;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 15px;
-    padding:2px  5px;
-    border-radius: 50%;
+@media screen and (max-width: 1000px) {
+    
+section h1{
+    font-size: 4vh;
 }
-.user_content  a:hover{
-    background: #eee;
+   
+.container{
+    width: 300px;
+    height: 225px;
+} 
+
+
+.container-validacion{
+    width: 300px;
+    height: 300px;
+}
 }

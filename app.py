@@ -28,6 +28,7 @@ UPLOAD_FOLDER = 'app/app/file/'
 #FUNCIONES
 
 #Direccion Principal (Login)
+  
 @app.route('/')
 def Index():
   try:
@@ -39,17 +40,36 @@ def Index():
     flash(str(error))
     return render_template('index.html')
 
-#Valida de usuario(U)
+#Valida el Acceso a la Plataforma 
 @app.route('/validar_usuario', methods=['POST'])
 def validarusuaro():
-  try:
     if request.method == 'POST':
       usuario =  request.form['user']
+      link = connectBD()
+      db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4]) 
+      cur= db_connection.cursor()
+      cur.execute('SELECT * FROM roles WHERE Usuario = \'{}\' LIMIT 1 '.format(usuario))
+      data = cur.fetchone()
+      cur.close()
+      if len(data) > 0 :
+        username = data[1]
+        user = data[3]
+        return render_template('inicio.html',username=username,user=user)
+      else:
+        flash('Usuario Incorrecto')
+        return render_template('index.html')    
+ 
+
+#Valida de usuario
+@app.route('/validar_contrasena/<usuario>', methods=['POST'])
+def validarcontrasena(usuario):
+  try:
+    if request.method == 'POST':
       clave = request.form['clave']
       validar = check_credentials( usuario, clave )
       if validar:
         link = connectBD()
-        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4], charset="utf8") 
+        db_connection = pymysql.connect(host=link[0], port=link[1], user=link[2], passwd=link[3], db=link[4])  
         cur= db_connection.cursor()
         # Read a single record
         cur.execute("SELECT * FROM roles WHERE Usuario= \'{}\' Limit 1".format(usuario))
@@ -66,9 +86,7 @@ def validarusuaro():
         else:
           return redirect('/')
       else:
-        flash('Usuario o Clave Incorreto')
         return redirect('/')
-
   except Exception as error:
     flash(str(error))
     return redirect('/')  
