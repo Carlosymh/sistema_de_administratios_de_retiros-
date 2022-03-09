@@ -24,7 +24,7 @@
     {%endwith%}
     <section class="titulo"><img src="/static/img/Logo.png" alt=""><h1>Withdrawal System</h1></section>
     <div class="container-validacion"> 
-        <form action="/validar_contrasena/{{user}}" method="POST">
+        <form action="/validar/{{user}}" method="POST">
             <p>¡Hola, {{username}}, ingresa tu contraseña</p>
             <div><i class="fas fa-user-tie"></i><p>{{user}}</p><a href="/" class="userlink">X</a></div>
             <label for="user"> Ingresa tu Contraseña <i class="fas fa-unlock-alt"></i> </label>
