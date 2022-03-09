@@ -45,7 +45,7 @@ def Index():
 def validarusuaro():
     if request.method == 'POST':
       usuario =  request.form['user']
-      return render_template('inicio.html',username=usuario,user=user)   
+      return render_template('inicio.html',username=usuario,user=usuario)   
  
 
 #Valida de usuario
