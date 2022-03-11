@@ -39,8 +39,142 @@
             
     </div>
 <div class="user_info">
-    <p>Estas Viendo:{{Datos['SiteName']}}</p>
-    <a href="/logout"><i class="fas fa-power-off"></i>  {{Datos['UserName']}}</a>
+  <form action="/cambiar" method="post">
+  <label for="">Estas Viendo:</label>
+  <select name="facility">
+  <option disabled selected>{{Datos['SiteName']}}</option>
+  {% if  Datos['Rango'] == 'Administrador'%}
+  <option value="Aeropuerto"> Aeropuerto</option>
+  <option value="SVC DHL" > SVC DHL</option>
+  <option value="SVC FedEx" > SVC FedEx</option>
+  <option value="SVC Paquete Express"> SVC Paquete Express</option> 
+  <option value="SVC 99 Minutos"> SVC 99 Minutos</option>
+  <option value="Aguascalientes SAG1"> Aguascalientes SAG1</option>
+  <option value="Cancun SCN1"> Cancun SCN1</option>
+  <option value="Campeche SCP1"> Campeche SCP1</option>
+  <option value="CDMX1 SMX1"> CDMX1 SMX1</option>
+  <option value="CDMX2 SMX2"> CDMX2 SMX2</option>
+  <option value="CDMX3 SMX3"> CDMX3 SMX3</option>
+  <option value="CDMX4 SMX4"> CDMX4 SMX4</option>
+  <option value="CDMX5 SMX5" >CDMX5 SMX5</option>
+  <option value="CDMX6 SMX6" >CDMX6 SMX6</option>
+  <option value="Celaya SCY1" >Celaya SCY1</option>
+  <option value="Ciudad Victoria SVM1" >Ciudad Victoria SVM1</option>
+  <option value="Chihuahua SCH1" >Chihuahua SCH1</option>
+  <option value="Ciudad Juarez SCJ1" >Ciudad Juarez SCJ1</option>
+  <option value="Coatzacoalcos SCT1" >Coatzacoalcos SCT1</option>
+  <option value="Colima SCQ1" >Colima SCQ1</option>
+  <option value="Cuernavaca SCV1" >Cuernavaca SCV1</option>
+  <option value="Culiacan SCU1" >Culiacan SCU1</option>
+  <option value="Durango SDG1" >Durango SDG1</option>
+  <option value="Guadalajara SGD1" >Guadalajara SGD1</option>
+  <option value="Guadalajara SGD2" >Guadalajara SGD2</option>
+  <option value="Guerrero SGR1" >Guerrero SGR1</option>
+  <option value="Hermosillo SHM1" >Hermosillo SHM1</option>
+  <option value="Irapuato SBJ1" >Irapuato SBJ1</option>
+  <option value="La Paz SLP1" >La Paz SLP1</option>
+  <option value="Leon SLE1" >Leon SLE1</option>
+  <option value="Los Mochis SZL1" >Los Mochis SZL1</option>
+  <option value="Manzanillo SZL1" >Manzanillo SZL1</option>
+  <option value="Matamoros SMA1" >Matamoros SMA1</option>
+  <option value="Mazatlan SMZ1" >Mazatlan SMZ1</option>
+  <option value="Merida SMD1" >Merida SMD1</option>
+  <option value="Minatitlán SMI1" >Minatitlán SMI1</option>
+  <option value="Monterrey SMT1" >Monterrey SMT1</option>
+  <option value="Monterrey 2 SMT2" >Monterrey 2 SMT2</option>
+  <option value="Saltillo SLW1" >Saltillo SLW1</option>
+  <option value="Morelia SML1" >Morelia SML1</option>
+  <option value="Nuevo Laredo SNL1" >Nuevo Laredo SNL1</option>
+  <option value="Oaxaca SOX1" >Oaxaca SOX1</option>
+  <option value="Pachuca SHP1" >Pachuca SHP1</option>
+  <option value="Poza Rica SPZ1" >Poza Rica SPZ1</option>
+  <option value="Puebla SPB1" >Puebla SPB1</option>
+  <option value="Puerto Vallarta SPV1" >Puerto Vallarta SPV1</option>
+  <option value="Queretaro SQR1" >Queretaro SQR1</option>
+  <option value="Reynosa SRX1" >Reynosa SRX1</option>
+  <option value="San Luis SSL1" >San Luis SSL1</option>
+  <option value="Tamaulipas STA1" >Tamaulipas STA1</option>
+  <option value="Tepic STN1" >Tepic STN1</option>
+  <option value="Tijuana STJ1" >Tijuana STJ1</option>
+  <option value="Toluca STJ1" >Toluca STJ1</option>
+  <option value="Torreon STL1" >Torreon STL1</option>
+  <option value="Tuxtla Gutierrez STG1" >Tuxtla Gutierrez STG1</option>
+  <option value="Veracruz SVR1">Veracruz SVR1</option>
+  <option value="Villa Hermosa SVH1" >Villa Hermosa SVH1</option>
+  <option value="Xalapa SJA1" >Xalapa SJA1</option>
+  <option value="Zacatecas SZC1" >Zacatecas SZC1</option>
+  <option value="SVC DHL">SVC DHL</option>
+  <option value="SVC FedEx">SVC FedEx</option>
+  <option value="SVC Paquete Express">SVC Paquete Express</option>
+  <option value="SVC 99 Minutos">SVC 99 Minutos</option>
+  <option value="Aguascalientes SAG1">Aguascalientes SAG1</option>
+  <option value="Cancun SCN1">Cancun SCN1</option>
+  <option value="Campeche SCP1">Campeche SCP1</option>
+  <option value="CDMX1 SMX1">CDMX1 SMX1</option>
+  <option value="CDMX2 SMX2">CDMX2 SMX2</option>
+  <option value="CDMX3 SMX3">CDMX3 SMX3</option>
+  <option value="CDMX4 SMX4">CDMX4 SMX4</option>
+  <option value="CDMX5 SMX5">CDMX5 SMX5</option>
+  <option value="CDMX6 SMX6">CDMX6 SMX6</option>
+  <option value="Celaya SCY1">Celaya SCY1</option>
+  <option value="Ciudad Victoria SVM1">Ciudad Victoria SVM1</option>
+  <option value="Chihuahua SCH1">Chihuahua SCH1</option>
+  <option value="Ciudad Juarez SCJ1">Ciudad Juarez SCJ1</option>
+  <option value="Coatzacoalcos SCT1">Coatzacoalcos SCT1</option>
+  <option value="Colima SCQ1">Colima SCQ1</option>
+  <option value="Cuernavaca SCV1">Cuernavaca SCV1</option>
+  <option value="Culiacan SCU1">Culiacan SCU1</option>
+  <option value="Durango SDG1">Durango SDG1</option>
+  <option value="Guadalajara SGD1">Guadalajara SGD1</option>
+  <option value="Guadalajara SGD2">Guadalajara SGD2</option>
+  <option value="Guerrero SGR1">Guerrero SGR1</option>
+  <option value="Hermosillo SHM1">Hermosillo SHM1</option>
+  <option value="Irapuato SBJ1">Irapuato SBJ1</option>
+  <option value="La Paz SLP1">La Paz SLP1</option>
+  <option value="Leon SLE1">Leon SLE1</option>
+  <option value="Los Mochis SZL1">Los Mochis SZL1</option>
+  <option value="Manzanillo SZL1">Manzanillo SZL1</option>
+  <option value="Matamoros SMA1">Matamoros SMA1</option>
+  <option value="Mazatlan SMZ1">Mazatlan SMZ1</option>
+  <option value="Merida SMD1">Merida SMD1</option>
+  <option value="Minatitlán SMI1">Minatitlán SMI1</option>
+  <option value="Monterrey SMT1">Monterrey SMT1</option>
+  <option value="Monterrey 2 SMT2">Monterrey 2 SMT2</option>
+  <option value="Saltillo SLW1">Saltillo SLW1</option>
+  <option value="Morelia SML1">Morelia SML1</option>
+  <option value="Nuevo Laredo SNL1">Nuevo Laredo SNL1</option>
+  <option value="Oaxaca SOX1">Oaxaca SOX1</option>
+  <option value="Pachuca SHP1">Pachuca SHP1</option>
+  <option value="Poza Rica SPZ1">Poza Rica SPZ1</option>
+  <option value="Puebla SPB1">Puebla SPB1</option>
+  <option value="Puerto Vallarta SPV1">Puerto Vallarta SPV1</option>
+  <option value="Queretaro SQR1">Queretaro SQR1</option>
+  <option value="Reynosa SRX1">Reynosa SRX1</option>
+  <option value="San Luis SSL1">San Luis SSL1</option>
+  <option value="Tamaulipas STA1">Tamaulipas STA1</option>
+  <option value="Tepic STN1">Tepic STN1</option>
+  <option value="Tijuana STJ1">Tijuana STJ1</option>
+  <option value="Toluca STJ1">Toluca STJ1</option>
+  <option value="Torreon STL1">Torreon STL1</option>
+  <option value="Tuxtla Gutierrez STG1">Tuxtla Gutierrez STG1</option>
+  <option value="Veracruz SVR1">Veracruz SVR1</option>
+  <option value="Villa Hermosa SVH1">Villa Hermosa SVH1</option>
+  <option value="Xalapa SJA1">Xalapa SJA1</option>
+  <option value="Zacatecas SZC1">Zacatecas SZC1</option>
+  <option value="Odonnell">O'donnell</option>
+  <option value="Prologis">Prologis</option>
+  <option value="Mega parck">Mega parck</option>
+  <option value="Monterrey">Monterrey</option>
+  <option value="Guadalajaral">Guadalajara</option>
+  <option value="México MXXEM1">Mexico MXXEM1</option>
+  <option value="Monterrey MXXMT1">Monterrey MXXMT1</option>
+  <option value="Guadalajara MXXGD1">Guadalajara MXXGD1</option>
+  <option value="Mérida MXXMD1">Mérida MXXMD1</option>
+  {%endif%}
+  </select>
+  <input type="submit" value="Cambiar">
+  </form>
+  <a href="/logout"><i class="fas fa-power-off"></i>  {{Datos['UserName']}}</a>
 </div>
 
 </nav>

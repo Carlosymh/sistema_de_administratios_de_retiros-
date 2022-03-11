@@ -79,6 +79,15 @@ def validarcontrasena(usuario):
     flash(str(error))
     return redirect('/')  
 
+@app.route('/cambiar', methods=['POST'])
+def cambiarfacility():
+  try:
+    if request.method == 'POST':
+      facility = request.form['facility']
+      session['SiteName']=facility
+      return redirect('/home')
+  except:
+    return redirect('/home')
 
 #Pagina de Bienvenida 
 @app.route('/home',methods=['POST','GET'])
